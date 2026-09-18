@@ -1,7 +1,13 @@
+import { create } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 
-import type { EBPFInboundDiagnostics } from "../gen/daemon/started_service_pb";
 import {
+  EBPFDiagnosticsResponseSchema,
+  EBPFInboundDiagnosticsSchema,
+  type EBPFInboundDiagnostics,
+} from "../gen/daemon/started_service_pb";
+import {
+  ebpfDiagnosticsJson,
   ebpfStateTone,
   occupancyPercent,
   positiveCounterDelta,
@@ -46,5 +52,21 @@ describe("eBPF diagnostics helpers", () => {
     expect(unixMillis(0n)).toBeNull();
     expect(unixMillis(1_700_000_000_000n)).toBe(1_700_000_000_000);
     expect(unixMillis(BigInt(Number.MAX_SAFE_INTEGER) + 1n)).toBeNull();
+  });
+
+  it("exports bigint counters using protobuf JSON without precision loss", () => {
+    const large = BigInt(Number.MAX_SAFE_INTEGER) + 123n;
+    const diagnostics = create(EBPFDiagnosticsResponseSchema, {
+      inbounds: [
+        create(EBPFInboundDiagnosticsSchema, {
+          tag: "ebpf-in",
+          bypassRuleSetPolicyVersion: large,
+        }),
+      ],
+    });
+    const json = ebpfDiagnosticsJson(diagnostics);
+    expect(JSON.parse(json)).toMatchObject({
+      inbounds: [{ tag: "ebpf-in", bypassRuleSetPolicyVersion: large.toString() }],
+    });
   });
 });

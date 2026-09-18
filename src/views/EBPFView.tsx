@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 
 import {
   SUPPORTED_EBPF_SCHEMA_VERSION,
+  ebpfDiagnosticsJson,
   ebpfStateTone,
   occupancyPercent,
   positiveCounterDelta,
@@ -11,6 +12,7 @@ import {
 import { formatDateTime } from "../api/format";
 import { useQuery } from "../api/query";
 import { useApi } from "../app/context";
+import { showError } from "../app/errorStore";
 import { useI18n, type Translate } from "../app/i18n";
 import { Icon } from "../components/Icon";
 import {
@@ -68,6 +70,7 @@ export function EBPFView() {
 
   useEffect(() => {
     void api.ebpfDiagnostics.refresh();
+    return () => api.ebpfDiagnostics.invalidate();
   }, [api]);
 
   const data = diagnostics.data;
@@ -83,14 +86,29 @@ export function EBPFView() {
       <ToolsPageHeader
         title={t("eBPF Diagnostics")}
         actions={
-          <IconButton
-            title={t("Refresh eBPF diagnostics")}
-            aria-label={t("Refresh eBPF diagnostics")}
-            disabled={diagnostics.phase === "loading"}
-            onClick={() => void api.ebpfDiagnostics.refresh()}
-          >
-            <Icon name="sync" />
-          </IconButton>
+          <div className={styles.headerActions}>
+            {data !== null && (
+              <IconButton
+                title={t("Copy diagnostics JSON")}
+                aria-label={t("Copy diagnostics JSON")}
+                onClick={() => {
+                  void navigator.clipboard
+                    .writeText(ebpfDiagnosticsJson(data))
+                    .catch(showError);
+                }}
+              >
+                <Icon name="content_copy" />
+              </IconButton>
+            )}
+            <IconButton
+              title={t("Refresh eBPF diagnostics")}
+              aria-label={t("Refresh eBPF diagnostics")}
+              disabled={diagnostics.phase === "loading"}
+              onClick={() => void api.ebpfDiagnostics.refresh()}
+            >
+              <Icon name="sync" />
+            </IconButton>
+          </div>
         }
       />
 

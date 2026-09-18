@@ -1,7 +1,20 @@
+import { toJsonString } from "@bufbuild/protobuf";
+
 import type { EBPFInboundDiagnostics } from "../gen/daemon/started_service_pb";
+import {
+  EBPFDiagnosticsResponseSchema,
+  type EBPFDiagnosticsResponse,
+} from "../gen/daemon/started_service_pb";
 import type { DelayTone } from "./format";
 
 export const SUPPORTED_EBPF_SCHEMA_VERSION = 2;
+
+export function ebpfDiagnosticsJson(diagnostics: EBPFDiagnosticsResponse): string {
+  return toJsonString(EBPFDiagnosticsResponseSchema, diagnostics, {
+    alwaysEmitImplicit: true,
+    prettySpaces: 2,
+  });
+}
 
 const STATE_RANK: Record<string, number> = {
   normal: 0,

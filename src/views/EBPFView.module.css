@@ -4,6 +4,11 @@
   color: var(--text-secondary);
 }
 
+.header-actions {
+  display: flex;
+  gap: var(--space-4);
+}
+
 .warning,
 .warning-inline {
   color: var(--medium);
@@ -66,6 +71,10 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-12);
+}
+
+.card-grid :global(.wide) {
+  grid-column: 1 / -1;
 }
 
 .item-list {

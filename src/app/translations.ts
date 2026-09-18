@@ -214,6 +214,7 @@ export const TRANSLATIONS = {
   "Runtime Diagnostics": { "zh-Hans": "运行诊断", "zh-Hant": "執行診斷", "fa": "عیب‌یابی زمان اجرا", "ru": "Диагностика среды выполнения" },
   "eBPF Diagnostics": { "zh-Hans": "eBPF 诊断", "zh-Hant": "eBPF 診斷", "fa": "عیب‌یابی eBPF", "ru": "Диагностика eBPF" },
   "Refresh eBPF diagnostics": { "zh-Hans": "刷新 eBPF 诊断", "zh-Hant": "重新整理 eBPF 診斷", "fa": "بازخوانی عیب‌یابی eBPF", "ru": "Обновить диагностику eBPF" },
+  "Copy diagnostics JSON": { "zh-Hans": "复制诊断 JSON", "zh-Hant": "複製診斷 JSON", "fa": "کپی JSON عیب‌یابی", "ru": "Копировать JSON диагностики" },
   "Collected at {time}": { "zh-Hans": "采集于 {time}", "zh-Hant": "擷取於 {time}", "fa": "گردآوری‌شده در {time}", "ru": "Собрано в {time}" },
   "Cached data; refresh failed: {error}": { "zh-Hans": "正在显示缓存数据；刷新失败：{error}", "zh-Hant": "正在顯示快取資料；重新整理失敗：{error}", "fa": "دادهٔ ذخیره‌شده؛ بازخوانی ناموفق بود: {error}", "ru": "Показаны кэшированные данные; обновление не удалось: {error}" },
   "Unable to load eBPF diagnostics: {error}": { "zh-Hans": "无法加载 eBPF 诊断：{error}", "zh-Hant": "無法載入 eBPF 診斷：{error}", "fa": "بارگیری عیب‌یابی eBPF ممکن نیست: {error}", "ru": "Не удалось загрузить диагностику eBPF: {error}" },
