@@ -876,6 +876,22 @@ message EBPFInboundDiagnostics {
   string localUdpUserspaceCleanupMode = 31;
   string localUdpStorageMode = 32;
   string localUdpTimeMode = 33;
+  string tcBackendMode = 34;
+  string tcListenerLookupMode = 35;
+  string tcAttachmentMode = 36;
+  string tcDeliveryInterface = 37;
+  int32 tcDeliveryInterfaceIndex = 38;
+  uint32 tcRoutingMark = 39;
+  int32 tcRoutingTable = 40;
+  int32 tcRoutingPriority = 41;
+  int32 tcAttachmentCount = 42;
+  int32 tcRetiredAttachmentCount = 43;
+  int32 tcRetiredDeliveryCount = 44;
+  bool tcRequiresRebuild = 45;
+  string tcHealthStatus = 46;
+  optional int64 tcLastHealthCheckAt = 47;
+  optional int64 tcLastReconcileAt = 48;
+  uint64 tcNetworkGeneration = 49;
 }
 
 message EBPFAttachmentDiagnostics {

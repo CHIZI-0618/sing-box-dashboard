@@ -211,7 +211,7 @@ function InboundSection(props: {
   inbound: EBPFInboundDiagnostics;
   previous?: EBPFInboundDiagnostics;
 }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const inbound = props.inbound;
   return (
     <div>
@@ -272,6 +272,51 @@ function InboundSection(props: {
             </>
           )}
         </Card>
+
+        {inbound.tcBackendMode !== "" && (
+          <Card title={t("TC runtime")}>
+            <DataLine label={t("Backend")} value={inbound.tcBackendMode} mono />
+            <DataLine label={t("Listener lookup")} value={inbound.tcListenerLookupMode || "-"} mono />
+            <DataLine label={t("Attachment mechanism")} value={inbound.tcAttachmentMode || "-"} mono />
+            <DataLine
+              label={t("Delivery interface")}
+              value={
+                inbound.tcDeliveryInterface === ""
+                  ? "-"
+                  : `${inbound.tcDeliveryInterface} (#${inbound.tcDeliveryInterfaceIndex})`
+              }
+              mono
+            />
+            <DataLine
+              label={t("Policy routing")}
+              value={`mark=${inbound.tcRoutingMark} table=${inbound.tcRoutingTable} priority=${inbound.tcRoutingPriority}`}
+              mono
+            />
+            <DataLine
+              label={t("Attachments")}
+              value={`${inbound.tcAttachmentCount} · ${t("retired {attachments} / {deliveries}", {
+                attachments: inbound.tcRetiredAttachmentCount,
+                deliveries: inbound.tcRetiredDeliveryCount,
+              })}`}
+              mono
+            />
+            <DataLine
+              label={t("Health")}
+              value={inbound.tcHealthStatus || "-"}
+              mono
+            />
+            <DataLine
+              label={t("Network generation")}
+              value={formatCount(inbound.tcNetworkGeneration, language)}
+              mono
+            />
+            <OptionalTime label={t("Last health check")} value={inbound.tcLastHealthCheckAt} />
+            <OptionalTime label={t("Last reconcile")} value={inbound.tcLastReconcileAt} />
+            {inbound.tcRequiresRebuild && (
+              <Badge tone="bad">{t("Rebuild required")}</Badge>
+            )}
+          </Card>
+        )}
 
         <Card title={t("Recovery and policy")}>
           <DataLine
