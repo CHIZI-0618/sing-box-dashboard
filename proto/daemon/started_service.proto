@@ -871,6 +871,11 @@ message EBPFInboundDiagnostics {
   EBPFUDPNATDiagnostics udpNAT = 26;
   EBPFBypassRuleSetDiagnostics localBypassRuleSet = 27;
   EBPFBypassRuleSetDiagnostics sharedBypassRuleSet = 28;
+  string localCgroupAttachMode = 29;
+  string localUdpCleanupMode = 30;
+  string localUdpUserspaceCleanupMode = 31;
+  string localUdpStorageMode = 32;
+  string localUdpTimeMode = 33;
 }
 
 message EBPFAttachmentDiagnostics {

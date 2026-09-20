@@ -242,6 +242,35 @@ function InboundSection(props: {
             label={t("FakeIP ICMP reply")}
             value={inbound.fakeIPICMPReply ? t("Enabled") : t("Disabled")}
           />
+          {inbound.localCgroupAttachMode !== "" && (
+            <>
+              <DataLine
+                label={t("Cgroup attach")}
+                value={inbound.localCgroupAttachMode}
+                mono
+              />
+              <DataLine
+                label={t("UDP cleanup")}
+                value={inbound.localUdpCleanupMode || "-"}
+                mono
+              />
+              <DataLine
+                label={t("Userspace cleanup")}
+                value={inbound.localUdpUserspaceCleanupMode || "-"}
+                mono
+              />
+              <DataLine
+                label={t("Socket storage")}
+                value={inbound.localUdpStorageMode || "-"}
+                mono
+              />
+              <DataLine
+                label={t("Time source")}
+                value={inbound.localUdpTimeMode || "-"}
+                mono
+              />
+            </>
+          )}
         </Card>
 
         <Card title={t("Recovery and policy")}>
