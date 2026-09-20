@@ -3,6 +3,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import {
   SUPPORTED_EBPF_SCHEMA_VERSION,
   ebpfDiagnosticsJson,
+  ebpfDiagnosticsSchemaVersion,
   ebpfStateTone,
   occupancyPercent,
   positiveCounterDelta,
@@ -27,6 +28,7 @@ import {
 } from "../components/ui";
 import type {
   EBPFCounters,
+  EBPFBypassRuleSetDiagnostics,
   EBPFDiagnosticsResponse,
   EBPFInboundDiagnostics,
   EBPFKernelRuntimeDiagnostics,
@@ -74,6 +76,7 @@ export function EBPFView() {
   }, [api]);
 
   const data = diagnostics.data;
+  const schemaVersion = data === null ? 0 : ebpfDiagnosticsSchemaVersion(data);
   const previous = previousInbounds.current;
   useEffect(() => {
     if (diagnostics.phase === "loaded" && data !== null) {
@@ -122,6 +125,13 @@ export function EBPFView() {
       {diagnostics.phase === "error" && data !== null && (
         <div className={styles.warning}>
           {t("Cached data; refresh failed: {error}", { error: diagnostics.error ?? "" })}
+        </div>
+      )}
+      {schemaVersion > SUPPORTED_EBPF_SCHEMA_VERSION && (
+        <div className={styles.warning}>
+          {t("Newer diagnostics schema {version}; some fields may not be shown", {
+            version: schemaVersion,
+          })}
         </div>
       )}
 
@@ -201,7 +211,7 @@ function InboundSection(props: {
   inbound: EBPFInboundDiagnostics;
   previous?: EBPFInboundDiagnostics;
 }) {
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const inbound = props.inbound;
   return (
     <div>
@@ -218,13 +228,6 @@ function InboundSection(props: {
             </Badge>
           }
         >
-          {inbound.schemaVersion > SUPPORTED_EBPF_SCHEMA_VERSION && (
-            <div className={styles.warningInline}>
-              {t("Newer diagnostics schema {version}; some fields may not be shown", {
-                version: inbound.schemaVersion,
-              })}
-            </div>
-          )}
           <DataLine
             label={t("Local data plane")}
             value={inbound.localEnabled ? inbound.localDataPlane : t("Disabled")}
@@ -250,39 +253,18 @@ function InboundSection(props: {
             label={t("Unrecoverable")}
             value={inbound.recoveryUnrecoverable ? t("Enabled") : t("Disabled")}
           />
-          <DataLine
-            label={t("Rule-set policy")}
-            value={
-              inbound.bypassRuleSetPending
-                ? t("Synchronizing")
-                : inbound.bypassRuleSetConsistent
-                  ? t("Consistent")
-                  : t("Inconsistent")
-            }
-          />
-          <DataLine
-            label={t("Policy version")}
-            value={formatCount(inbound.bypassRuleSetPolicyVersion, language)}
-            mono
-          />
-          <DataLine
-            label={t("Expected version")}
-            value={formatCount(inbound.bypassRuleSetExpectedPolicyVersion, language)}
-            mono
-          />
-          <DataLine
-            label={t("Retry count")}
-            value={formatCount(inbound.bypassRuleSetRetryCount, language)}
-            mono
-          />
-          {Object.entries(inbound.bypassRuleSetBackendState).map(([name, state]) => (
-            <DataLine
-              key={name}
-              label={name}
-              value={state.known ? formatCount(state.version, language) : t("Unknown")}
-              mono
+          {inbound.localEnabled && inbound.localBypassRuleSet && (
+            <RuleSetPolicy
+              label={t("Local rule-set policy")}
+              policy={inbound.localBypassRuleSet}
             />
-          ))}
+          )}
+          {inbound.sharedEnabled && inbound.sharedBypassRuleSet && (
+            <RuleSetPolicy
+              label={t("Shared rule-set policy")}
+              policy={inbound.sharedBypassRuleSet}
+            />
+          )}
           {inbound.lastError !== "" && (
             <DataLine label={t("Last error")} value={inbound.lastError} mono />
           )}
@@ -321,6 +303,49 @@ function InboundSection(props: {
         <UDPRuntime inbound={inbound} previous={props.previous} />
         <CounterCard counters={inbound.counters} previous={props.previous?.counters} />
       </div>
+    </div>
+  );
+}
+
+function RuleSetPolicy(props: { label: string; policy: EBPFBypassRuleSetDiagnostics }) {
+  const { t, language } = useI18n();
+  const policy = props.policy;
+  return (
+    <div className={styles.policy}>
+      <div className={styles.policyHeading}>{props.label}</div>
+      <DataLine
+        label={t("Status")}
+        value={
+          policy.pending
+            ? t("Synchronizing")
+            : policy.consistent
+              ? t("Consistent")
+              : t("Inconsistent")
+        }
+      />
+      <DataLine
+        label={t("Policy version")}
+        value={formatCount(policy.policyVersion, language)}
+        mono
+      />
+      <DataLine
+        label={t("Expected version")}
+        value={formatCount(policy.expectedPolicyVersion, language)}
+        mono
+      />
+      <DataLine
+        label={t("Retry count")}
+        value={formatCount(policy.retryCount, language)}
+        mono
+      />
+      {Object.entries(policy.backendState).map(([name, state]) => (
+        <DataLine
+          key={name}
+          label={name}
+          value={state.known ? formatCount(state.version, language) : t("Unknown")}
+          mono
+        />
+      ))}
     </div>
   );
 }

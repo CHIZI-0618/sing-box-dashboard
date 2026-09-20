@@ -8,6 +8,7 @@ import {
 } from "../gen/daemon/started_service_pb";
 import {
   ebpfDiagnosticsJson,
+  ebpfDiagnosticsSchemaVersion,
   ebpfStateTone,
   occupancyPercent,
   positiveCounterDelta,
@@ -54,19 +55,43 @@ describe("eBPF diagnostics helpers", () => {
     expect(unixMillis(BigInt(Number.MAX_SAFE_INTEGER) + 1n)).toBeNull();
   });
 
+  it("uses the response diagnostics schema version with an inbound fallback", () => {
+    const current = create(EBPFDiagnosticsResponseSchema, {
+      schemaVersion: 4,
+      inbounds: [create(EBPFInboundDiagnosticsSchema, { schemaVersion: 3 })],
+    });
+    expect(ebpfDiagnosticsSchemaVersion(current)).toBe(4);
+
+    const legacy = create(EBPFDiagnosticsResponseSchema, {
+      inbounds: [
+        create(EBPFInboundDiagnosticsSchema, { schemaVersion: 2 }),
+        create(EBPFInboundDiagnosticsSchema, { schemaVersion: 3 }),
+      ],
+    });
+    expect(ebpfDiagnosticsSchemaVersion(legacy)).toBe(3);
+    expect(ebpfDiagnosticsSchemaVersion(create(EBPFDiagnosticsResponseSchema))).toBe(0);
+  });
+
   it("exports bigint counters using protobuf JSON without precision loss", () => {
     const large = BigInt(Number.MAX_SAFE_INTEGER) + 123n;
     const diagnostics = create(EBPFDiagnosticsResponseSchema, {
       inbounds: [
         create(EBPFInboundDiagnosticsSchema, {
           tag: "ebpf-in",
-          bypassRuleSetPolicyVersion: large,
+          localBypassRuleSet: {
+            policyVersion: large,
+          },
         }),
       ],
     });
     const json = ebpfDiagnosticsJson(diagnostics);
     expect(JSON.parse(json)).toMatchObject({
-      inbounds: [{ tag: "ebpf-in", bypassRuleSetPolicyVersion: large.toString() }],
+      inbounds: [
+        {
+          tag: "ebpf-in",
+          localBypassRuleSet: { policyVersion: large.toString() },
+        },
+      ],
     });
   });
 });
