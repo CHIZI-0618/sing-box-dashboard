@@ -54,8 +54,6 @@ const FAILURE_COUNTERS: CounterKey[] = [
 const ACTIVITY_COUNTERS: CounterKey[] = [
   "tcLocalFragmentPasses",
   "tcSharedFragmentPasses",
-  "sharedIngressPasses",
-  "sharedEgressPasses",
   "sharedIngressFragmentPasses",
   "sharedEgressFragmentPasses",
   "recoveryAttempts",

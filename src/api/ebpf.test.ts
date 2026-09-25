@@ -57,10 +57,10 @@ describe("eBPF diagnostics helpers", () => {
 
   it("uses the response diagnostics schema version with an inbound fallback", () => {
     const current = create(EBPFDiagnosticsResponseSchema, {
-      schemaVersion: 6,
+      schemaVersion: 7,
       inbounds: [create(EBPFInboundDiagnosticsSchema, { schemaVersion: 3 })],
     });
-    expect(ebpfDiagnosticsSchemaVersion(current)).toBe(6);
+    expect(ebpfDiagnosticsSchemaVersion(current)).toBe(7);
 
     const legacy = create(EBPFDiagnosticsResponseSchema, {
       inbounds: [
