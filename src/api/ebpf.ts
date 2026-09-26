@@ -1,6 +1,9 @@
 import { toJsonString } from "@bufbuild/protobuf";
 
-import type { EBPFInboundDiagnostics } from "../gen/daemon/started_service_pb";
+import type {
+  EBPFInboundDiagnostics,
+  EBPFKernelRuntimeDiagnostics,
+} from "../gen/daemon/started_service_pb";
 import {
   EBPFDiagnosticsResponseSchema,
   type EBPFDiagnosticsResponse,
@@ -65,6 +68,32 @@ export function occupancyPercent(entries: number, maxEntries: number): number | 
     return null;
   }
   return Math.min(100, (entries / maxEntries) * 100);
+}
+
+export interface EBPFMapHealth {
+  total: number;
+  supported: number;
+  unavailable: number;
+  high: number;
+}
+
+export function ebpfMapHealth(runtime: EBPFKernelRuntimeDiagnostics | undefined): EBPFMapHealth {
+  const maps = runtime?.mapOccupancy?.maps ?? [];
+  let supported = 0;
+  let unavailable = 0;
+  let high = 0;
+  for (const map of maps) {
+    if (!map.supported) {
+      unavailable++;
+      continue;
+    }
+    supported++;
+    const percent = occupancyPercent(map.entries, map.maxEntries);
+    if (percent !== null && percent >= 80) {
+      high++;
+    }
+  }
+  return { total: maps.length, supported, unavailable, high };
 }
 
 export function unixMillis(value: bigint | undefined): number | null {

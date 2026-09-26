@@ -8,6 +8,7 @@ import {
 } from "../gen/daemon/started_service_pb";
 import {
   ebpfDiagnosticsJson,
+  ebpfMapHealth,
   ebpfDiagnosticsSchemaVersion,
   ebpfStateTone,
   occupancyPercent,
@@ -53,6 +54,22 @@ describe("eBPF diagnostics helpers", () => {
     expect(unixMillis(0n)).toBeNull();
     expect(unixMillis(1_700_000_000_000n)).toBe(1_700_000_000_000);
     expect(unixMillis(BigInt(Number.MAX_SAFE_INTEGER) + 1n)).toBeNull();
+  });
+
+  it("summarizes kernel map health without treating unsupported maps as full", () => {
+    const runtime = create(EBPFDiagnosticsResponseSchema, {
+      kernelRuntime: {
+        mapOccupancy: {
+          maps: [
+            { entries: 8, maxEntries: 10, supported: true },
+            { entries: 1, maxEntries: 10, supported: true },
+            { entries: 0, maxEntries: 0, supported: false },
+          ],
+        },
+      },
+    }).kernelRuntime;
+    expect(ebpfMapHealth(runtime)).toEqual({ total: 3, supported: 2, unavailable: 1, high: 1 });
+    expect(ebpfMapHealth(undefined)).toEqual({ total: 0, supported: 0, unavailable: 0, high: 0 });
   });
 
   it("uses the response diagnostics schema version", () => {

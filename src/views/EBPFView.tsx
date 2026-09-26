@@ -4,6 +4,7 @@ import {
   SUPPORTED_EBPF_SCHEMA_VERSION,
   ebpfDiagnosticsJson,
   ebpfDiagnosticsSchemaVersion,
+  ebpfMapHealth,
   ebpfStateTone,
   occupancyPercent,
   positiveCounterDelta,
@@ -176,6 +177,13 @@ function Summary(props: { diagnostics: EBPFDiagnosticsResponse }) {
     counts.set(inbound.state, (counts.get(inbound.state) ?? 0) + 1);
   }
   const runtime = diagnostics.kernelRuntime;
+  const mapHealth = ebpfMapHealth(runtime);
+  const attention = diagnostics.inbounds.filter(
+    (inbound) => inbound.state === "needs_attention" || inbound.recoveryUnrecoverable,
+  ).length;
+  const pending = diagnostics.inbounds.filter(
+    (inbound) => inbound.recoveryPending || inbound.nextRetryAt !== undefined,
+  ).length;
   return (
     <div>
       <div className="list-section-title">{t("Overall status")}</div>
@@ -198,6 +206,32 @@ function Summary(props: { diagnostics: EBPFDiagnosticsResponse }) {
               label={t("Kernel maps")}
               value={runtime.mapOccupancy?.maps.length ?? 0}
             />
+            <DataLine
+              label={t("Attention")}
+              value={<Badge tone={attention > 0 ? "bad" : "good"}>{attention}</Badge>}
+            />
+            <DataLine
+              label={t("Pending retries")}
+              value={<Badge tone={pending > 0 ? "medium" : "good"}>{pending}</Badge>}
+            />
+            <DataLine
+              label={t("Map health")}
+              value={
+                <Badge
+                  tone={
+                    mapHealth.total === 0 || mapHealth.high > 0 || mapHealth.unavailable > 0
+                      ? "medium"
+                      : "good"
+                  }
+                >
+                  {mapHealth.total === 0
+                    ? t("Unknown")
+                    : mapHealth.high > 0 || mapHealth.unavailable > 0
+                      ? t("Needs attention")
+                      : t("Normal")}
+                </Badge>
+              }
+            />
           </div>
         )}
       </Card>
@@ -211,9 +245,24 @@ function InboundSection(props: {
 }) {
   const { t, language } = useI18n();
   const inbound = props.inbound;
+  const showNotice = inbound.state !== "normal" || inbound.lastError !== "";
   return (
     <div>
       <div className="list-section-title">{inbound.tag || "eBPF"}</div>
+      {showNotice && (
+        <div className={styles.runtimeNotice}>
+          <div className={styles.noticeHeadline}>
+            <StateDot tone={ebpfStateTone(inbound.state)} />
+            <strong>{stateLabel(inbound.state, t)}</strong>
+            {inbound.recoveryUnrecoverable && <Badge tone="bad">{t("Rebuild required")}</Badge>}
+            {inbound.recoveryPending && <Badge tone="medium">{t("Recovery pending")}</Badge>}
+          </div>
+          {inbound.lastError !== "" && <div className={styles.noticeError}>{inbound.lastError}</div>}
+          {inbound.nextRetryAt !== undefined && (
+            <OptionalTime label={t("Next retry")} value={inbound.nextRetryAt} />
+          )}
+        </div>
+      )}
       <div className={styles.cardGrid}>
         <Card
           title={t("Data planes")}
@@ -235,6 +284,10 @@ function InboundSection(props: {
             label={t("Shared data plane")}
             value={inbound.sharedEnabled ? inbound.sharedDataPlane : t("Disabled")}
             mono={inbound.sharedEnabled}
+          />
+          <DataLine
+            label={t("Effective paths")}
+            value={<PathBadges inbound={inbound} />}
           />
           <DataLine
             label={t("FakeIP ICMP reply")}
@@ -422,6 +475,28 @@ function RuleSetPolicy(props: { label: string; policy: EBPFBypassRuleSetDiagnost
   );
 }
 
+function PathBadges(props: { inbound: EBPFInboundDiagnostics }) {
+  const { inbound } = props;
+  const paths: string[] = [];
+  if (inbound.localEnabled) {
+    const detail = inbound.localDataPlane === "cgroup"
+      ? inbound.localCgroupAttachMode
+      : inbound.tcAttachmentMode;
+    paths.push(`local:${inbound.localDataPlane || "?"}${detail ? `/${detail}` : ""}`);
+  }
+  if (inbound.sharedEnabled) {
+    const detail = inbound.sharedDataPlane === "socket_assign" || inbound.sharedDataPlane === "packet_rewrite"
+      ? inbound.tcAttachmentMode
+      : "";
+    paths.push(`shared:${inbound.sharedDataPlane || "?"}${detail ? `/${detail}` : ""}`);
+  }
+  return (
+    <span className={styles.pathBadges}>
+      {paths.length === 0 ? "-" : paths.map((path) => <Badge key={path}>{path}</Badge>)}
+    </span>
+  );
+}
+
 function UDPRuntime(props: {
   inbound: EBPFInboundDiagnostics;
   previous?: EBPFInboundDiagnostics;
@@ -554,6 +629,7 @@ function CounterLine(props: {
 function KernelRuntimeSection(props: { runtime: EBPFKernelRuntimeDiagnostics }) {
   const { t, language } = useI18n();
   const runtime = props.runtime;
+  const mapHealth = ebpfMapHealth(runtime);
   return (
     <div>
       <div className="list-section-title">{t("Kernel runtime")}</div>
@@ -561,6 +637,11 @@ function KernelRuntimeSection(props: { runtime: EBPFKernelRuntimeDiagnostics }) 
         <details className={styles.kernelDetails}>
           <summary>
             {t("Kernel programs")} · {runtime.programs.length}
+            {runtime.mapOccupancy && (
+              <Badge tone={mapHealth.high > 0 || mapHealth.unavailable > 0 ? "medium" : "good"}>
+                {mapHealth.total === 0 ? t("Unknown") : `${mapHealth.supported}/${mapHealth.total}`}
+              </Badge>
+            )}
           </summary>
           <div className={styles.kernelBody}>
             {runtime.programsError !== "" && (
