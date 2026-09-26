@@ -7,18 +7,10 @@ import {
 } from "../gen/daemon/started_service_pb";
 import type { DelayTone } from "./format";
 
-export const SUPPORTED_EBPF_SCHEMA_VERSION = 7;
+export const SUPPORTED_EBPF_SCHEMA_VERSION = 8;
 
 export function ebpfDiagnosticsSchemaVersion(diagnostics: EBPFDiagnosticsResponse): number {
-  if (diagnostics.schemaVersion > 0) {
-    return diagnostics.schemaVersion;
-  }
-  // sing-box versions before response schema v4 only carried the version on
-  // each inbound. Keep that fallback until those daemons are no longer useful.
-  return diagnostics.inbounds.reduce(
-    (version, inbound) => Math.max(version, inbound.schemaVersion),
-    0,
-  );
+  return diagnostics.schemaVersion;
 }
 
 export function ebpfDiagnosticsJson(diagnostics: EBPFDiagnosticsResponse): string {

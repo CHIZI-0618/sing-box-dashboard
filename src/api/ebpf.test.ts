@@ -55,20 +55,12 @@ describe("eBPF diagnostics helpers", () => {
     expect(unixMillis(BigInt(Number.MAX_SAFE_INTEGER) + 1n)).toBeNull();
   });
 
-  it("uses the response diagnostics schema version with an inbound fallback", () => {
+  it("uses the response diagnostics schema version", () => {
     const current = create(EBPFDiagnosticsResponseSchema, {
-      schemaVersion: 7,
-      inbounds: [create(EBPFInboundDiagnosticsSchema, { schemaVersion: 3 })],
+      schemaVersion: 8,
     });
-    expect(ebpfDiagnosticsSchemaVersion(current)).toBe(7);
+    expect(ebpfDiagnosticsSchemaVersion(current)).toBe(8);
 
-    const legacy = create(EBPFDiagnosticsResponseSchema, {
-      inbounds: [
-        create(EBPFInboundDiagnosticsSchema, { schemaVersion: 2 }),
-        create(EBPFInboundDiagnosticsSchema, { schemaVersion: 3 }),
-      ],
-    });
-    expect(ebpfDiagnosticsSchemaVersion(legacy)).toBe(3);
     expect(ebpfDiagnosticsSchemaVersion(create(EBPFDiagnosticsResponseSchema))).toBe(0);
   });
 
