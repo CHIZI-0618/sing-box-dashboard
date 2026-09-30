@@ -20,6 +20,7 @@ const ICONS = {
   route: "outlined",
   bug_report: "outlined",
   memory: "outlined",
+  developer_board: "outlined",
   bolt: "outlined",
   speed: "filled",
   unfold_more: "filled",

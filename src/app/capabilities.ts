@@ -4,6 +4,7 @@ export const MIN_API_VERSION = {
   usbip: 2,
   openVpnAndOpenConnect: 3,
   taildrop: 4,
+  ebpf: 6,
 } as const;
 
 export type Capability = keyof typeof MIN_API_VERSION;
