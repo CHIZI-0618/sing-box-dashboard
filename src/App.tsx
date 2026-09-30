@@ -53,6 +53,7 @@ import { SSH_DEFAULT_TERMINAL_TYPE, SSH_DEFAULT_USERNAME } from "./lib/tailscale
 import { loadStoredString, saveStoredString } from "./lib/storage";
 import { ConnectionErrorView } from "./views/ConnectionErrorView";
 import { ConnectionsView } from "./views/ConnectionsView";
+import { EBPFView } from "./views/EBPFView";
 import { DesktopSetupView } from "./views/DesktopSetupView";
 import {
   CrashReportDetailView,
@@ -115,6 +116,7 @@ export type Route =
   | { page: "tools" }
   | { page: "tools/network-quality" }
   | { page: "tools/stun" }
+  | { page: "tools/ebpf" }
   | { page: "tools/tailscale"; tag: string }
   | { page: "tools/tailscale/ssh"; tag: string; peerID: string; username: string; terminalType: string }
   | { page: "tools/tailscale/taildrop"; tag: string }
@@ -175,6 +177,8 @@ function routeFromHash(locationHash: string): Route {
           return { page: "tools/network-quality" };
         case "stun":
           return { page: "tools/stun" };
+        case "ebpf":
+          return { page: "tools/ebpf" };
         case "tailscale":
           if (segments[3] === "ssh" && segments[4]) {
             return {
@@ -288,6 +292,7 @@ function locationHashSnapshot(): string {
 function isStartedOnlyToolsSubpage(page: string): boolean {
   return (
     page.startsWith("tools/tailscale") ||
+    page === "tools/ebpf" ||
     page.startsWith("tools/usbip") ||
     page.startsWith("tools/openconnect") ||
     page.startsWith("tools/openvpn")
@@ -318,6 +323,8 @@ function routeTitle(route: Route, t: Translate, language: string): string {
       return t("Network Quality");
     case "tools/stun":
       return t("STUN Test");
+    case "tools/ebpf":
+      return t("eBPF Diagnostics");
     case "tools/tailscale":
       return route.tag !== "" ? t("Tailscale: {tag}", { tag: route.tag }) : "Tailscale";
     case "tools/tailscale/ssh":
@@ -771,6 +778,7 @@ function ShellContent(props: ShellProps & { onRetry: () => void }) {
       (route.page === "connections" && !started) ||
       (isStartedOnlyToolsSubpage(route.page) && !started) ||
       (route.page === "tools/usbip" && capabilities.ready && !capabilities.supports("usbip")) ||
+      (route.page === "tools/ebpf" && capabilities.ready && !capabilities.supports("ebpf")) ||
       (route.page === "tools/tailscale/taildrop" &&
         capabilities.ready &&
         !capabilities.supports("taildrop")) ||
@@ -873,6 +881,7 @@ function ShellContent(props: ShellProps & { onRetry: () => void }) {
       {route.page === "tools" && <ToolsView />}
       {route.page === "tools/network-quality" && <NetworkQualityView />}
       {route.page === "tools/stun" && <STUNTestView />}
+      {route.page === "tools/ebpf" && <EBPFView />}
       {route.page === "tools/tailscale" && <TailscaleEndpointView tag={route.tag} />}
       {route.page === "tools/tailscale/taildrop" && <TaildropView tag={route.tag} />}
       {route.page === "tools/usbip" && <UsbipView tag={route.tag} />}

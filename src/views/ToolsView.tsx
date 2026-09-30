@@ -66,7 +66,28 @@ export function ToolsView() {
             <NavRow icon="swap_horiz" title={t("STUN Test")} onClick={() => navigate("tools/stun")} />
           </div>
         </div>
+        {started && <RuntimeDiagnosticsRows />}
         <DebugRows />
+      </div>
+    </div>
+  );
+}
+
+function RuntimeDiagnosticsRows() {
+  const { t } = useI18n();
+  const supported = useSupportsCapability("ebpf");
+  if (!supported) {
+    return null;
+  }
+  return (
+    <div>
+      <div className="list-section-title">{t("Runtime Diagnostics")}</div>
+      <div className="nav-list">
+        <NavRow
+          icon="developer_board"
+          title={t("eBPF Diagnostics")}
+          onClick={() => navigate("tools/ebpf")}
+        />
       </div>
     </div>
   );

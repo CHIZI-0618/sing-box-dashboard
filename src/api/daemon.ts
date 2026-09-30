@@ -8,6 +8,7 @@ import {
   Connection,
   ConnectionEventType,
   DeprecatedWarning,
+  type EBPFDiagnosticsResponse,
   Group,
   GroupItem,
   LogLevel,
@@ -26,6 +27,7 @@ import {
   type BidirectionalStreamHandlers,
 } from "./bidirectional";
 import { serverConnectUrl, type Server } from "./config";
+import { QueryStore } from "./query";
 import { StreamStore } from "./stream";
 
 export const STATUS_HISTORY_LENGTH = 30;
@@ -127,6 +129,7 @@ export class DaemonApi {
   readonly usbip: StreamStore<UsbipData>;
   readonly openConnect: StreamStore<OpenConnectData>;
   readonly openVPN: StreamStore<OpenVPNData>;
+  readonly ebpfDiagnostics: QueryStore<EBPFDiagnosticsResponse>;
 
   private logSequence = 0;
   private versionCache: ServerInfo | null = null;
@@ -376,6 +379,11 @@ export class DaemonApi {
       },
       true,
     );
+
+    this.ebpfDiagnostics = new QueryStore<EBPFDiagnosticsResponse>(async (signal) => {
+      await this.requireApiVersion(MIN_API_VERSION.ebpf);
+      return this.client.getEBPFDiagnostics({}, { signal });
+    });
   }
 
   openBidirectionalStream<I extends DescMessage, O extends DescMessage>(
