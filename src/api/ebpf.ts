@@ -11,7 +11,7 @@ import {
 } from "../gen/daemon/started_service_pb";
 import type { DelayTone } from "./format";
 
-export const SUPPORTED_EBPF_SCHEMA_VERSION = 8;
+export const SUPPORTED_EBPF_SCHEMA_VERSION = 11;
 
 export function ebpfDiagnosticsSchemaVersion(diagnostics: EBPFDiagnosticsResponse): number {
   return diagnostics.schemaVersion;
