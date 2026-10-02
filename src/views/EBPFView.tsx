@@ -334,6 +334,23 @@ function InboundSection(props: {
             label={t("Effective paths")}
             value={<PathBadges inbound={inbound} />}
           />
+          {inbound.policyEpoch && (
+            <>
+              <DataLine
+                label={t("Policy epoch")}
+                value={`local ${formatCount(inbound.policyEpoch.localConfirmed, language)}/${formatCount(inbound.policyEpoch.localExpected, language)} · shared ${formatCount(inbound.policyEpoch.sharedConfirmed, language)}/${formatCount(inbound.policyEpoch.sharedExpected, language)}`}
+                mono
+              />
+              <DataLine
+                label={t("Policy convergence")}
+                value={
+                  <Badge tone={inbound.policyEpoch.converged ? "good" : "medium"}>
+                    {inbound.policyEpoch.converged ? t("Converged") : t("Pending")}
+                  </Badge>
+                }
+              />
+            </>
+          )}
           <DataLine
             label={t("FakeIP ICMP reply")}
             value={inbound.fakeIPICMPReply ? t("Enabled") : t("Disabled")}
@@ -366,6 +383,11 @@ function InboundSection(props: {
                 mono
               />
               <DataLine label={t("UDP state")} value={inbound.localUdpState || "-"} mono />
+              <DataLine
+                label={t("UDP map pressure")}
+                value={inbound.localUdpMapPressure || t("Unknown")}
+                mono
+              />
               <DataLine
                 label={t("UDP recovery")}
                 value={inbound.localUdpRecoveryMode || "-"}
@@ -502,7 +524,11 @@ function inboundHealth(inbound: EBPFInboundDiagnostics, mapPressure: boolean): H
   if (inbound.recoveryPending || inbound.state === "recovering") {
     return "recovering";
   }
-  if (inbound.localBypassRuleSet?.pending || inbound.sharedBypassRuleSet?.pending) {
+  if (
+    inbound.localBypassRuleSet?.pending ||
+    inbound.sharedBypassRuleSet?.pending ||
+    (inbound.policyEpoch !== undefined && !inbound.policyEpoch.converged)
+  ) {
     return "policy_pending";
   }
   if (mapPressure || inbound.localUdpState === "map_pressure") {
