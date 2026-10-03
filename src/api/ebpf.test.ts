@@ -91,9 +91,9 @@ describe("eBPF diagnostics helpers", () => {
 
   it("uses the response diagnostics schema version", () => {
     const current = create(EBPFDiagnosticsResponseSchema, {
-      schemaVersion: 11,
+      schemaVersion: 12,
     });
-    expect(ebpfDiagnosticsSchemaVersion(current)).toBe(11);
+    expect(ebpfDiagnosticsSchemaVersion(current)).toBe(12);
 
     expect(ebpfDiagnosticsSchemaVersion(create(EBPFDiagnosticsResponseSchema))).toBe(0);
   });

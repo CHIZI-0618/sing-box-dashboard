@@ -355,6 +355,20 @@ function InboundSection(props: {
             label={t("FakeIP ICMP reply")}
             value={inbound.fakeIPICMPReply ? t("Enabled") : t("Disabled")}
           />
+          {inbound.localSelfBypassMode !== "" && (
+            <>
+              <DataLine
+                label={t("Self-bypass")}
+                value={inbound.localSelfBypassMode}
+                mono
+              />
+              <DataLine
+                label={t("Self-bypass cleanup")}
+                value={inbound.localSelfBypassCleanupMode || "-"}
+                mono
+              />
+            </>
+          )}
           {inbound.localCgroupAttachMode !== "" && (
             <>
               <DataLine

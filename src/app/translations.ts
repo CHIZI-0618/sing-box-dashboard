@@ -253,6 +253,8 @@ export const TRANSLATIONS = {
   "Effective paths": { "zh-Hans": "实际路径", "zh-Hant": "實際路徑", "fa": "مسیرهای مؤثر", "ru": "Фактические пути" },
   "FakeIP ICMP reply": { "zh-Hans": "FakeIP ICMP 回复", "zh-Hant": "FakeIP ICMP 回覆", "fa": "پاسخ ICMP برای FakeIP", "ru": "Ответ FakeIP ICMP" },
   "Cgroup attach": { "zh-Hans": "Cgroup 挂载", "zh-Hant": "Cgroup 掛載", "fa": "اتصال Cgroup", "ru": "Подключение cgroup" },
+  "Self-bypass": { "zh-Hans": "自身绕过", "zh-Hant": "自身繞過", "fa": "دور زدن خودی", "ru": "Самообход" },
+  "Self-bypass cleanup": { "zh-Hans": "自身绕过清理", "zh-Hant": "自身繞過清理", "fa": "پاک‌سازی دور زدن خودی", "ru": "Очистка самообхода" },
   "UDP cleanup": { "zh-Hans": "UDP 清理", "zh-Hant": "UDP 清理", "fa": "پاک‌سازی UDP", "ru": "Очистка UDP" },
   "Userspace cleanup": { "zh-Hans": "用户态清理", "zh-Hant": "使用者態清理", "fa": "پاک‌سازی فضای کاربر", "ru": "Очистка в userspace" },
   "Socket storage": { "zh-Hans": "Socket storage", "zh-Hant": "Socket storage", "fa": "ذخیره‌سازی سوکت", "ru": "Хранилище сокетов" },
