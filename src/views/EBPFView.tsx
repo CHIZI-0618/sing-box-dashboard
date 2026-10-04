@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import {
-  SUPPORTED_EBPF_SCHEMA_VERSION,
   ebpfDiagnosticsJson,
-  ebpfDiagnosticsSchemaVersion,
   ebpfMapHealth,
   ebpfTCDegradation,
   ebpfStateTone,
@@ -94,7 +92,6 @@ export function EBPFView() {
   }, [api]);
 
   const data = diagnostics.data;
-  const schemaVersion = data === null ? 0 : ebpfDiagnosticsSchemaVersion(data);
   const previous = previousInbounds.current;
   useEffect(() => {
     if (diagnostics.phase === "loaded" && data !== null) {
@@ -165,14 +162,6 @@ export function EBPFView() {
           {t("Cached data; refresh failed: {error}", { error: diagnostics.error ?? "" })}
         </div>
       )}
-      {schemaVersion > SUPPORTED_EBPF_SCHEMA_VERSION && (
-        <div className={styles.warning}>
-          {t("Newer diagnostics schema {version}; some fields may not be shown", {
-            version: schemaVersion,
-          })}
-        </div>
-      )}
-
       {data === null ? (
         diagnostics.phase === "error" ? (
           <EmptyState icon="developer_board">
@@ -412,6 +401,23 @@ function InboundSection(props: {
                 value={formatCount(BigInt(inbound.localUdpNetworkGeneration), language)}
                 mono
               />
+              <DataLine
+                label={t("Release observer")}
+                value={inbound.localUdpReleaseObserver ? t("Enabled") : t("Disabled")}
+                mono
+              />
+              <DataLine
+                label={t("Release program")}
+                value={inbound.localUdpReleaseProgram || "-"}
+                mono
+              />
+              {inbound.localUdpReleaseFallbackReason !== "" && (
+                <DataLine
+                  label={t("Release fallback")}
+                  value={inbound.localUdpReleaseFallbackReason}
+                  mono
+                />
+              )}
             </>
           )}
         </Card>
@@ -922,7 +928,7 @@ function KernelRuntimeSection(props: { runtime: EBPFKernelRuntimeDiagnostics }) 
           <summary>
             {t("Kernel programs")} · {runtime.programs.length}
             {runtime.mapOccupancy && (
-              <Badge tone={mapHealth.high > 0 || mapHealth.unavailable > 0 ? "medium" : "good"}>
+              <Badge tone={runtime.mapOccupancy.status === "degraded" ? "bad" : runtime.mapOccupancy.status === "warning" ? "medium" : "good"}>
                 {mapHealth.total === 0 ? t("Unknown") : `${mapHealth.supported}/${mapHealth.total}`}
               </Badge>
             )}
@@ -982,7 +988,17 @@ function MapItem(props: { map: EBPFMapDiagnostics; language: string }) {
         <span className={styles.badges}>
           <Badge>{map.type}</Badge>
           {map.pressure !== "" && (
-            <Badge tone={map.pressure === "healthy" ? "good" : map.pressure === "warning" ? "medium" : "bad"}>
+            <Badge
+              tone={
+                map.pressure === "healthy"
+                  ? "good"
+                  : map.pressure === "warning"
+                    ? "medium"
+                    : map.pressure === "not_applicable"
+                      ? undefined
+                      : "bad"
+              }
+            >
               {map.pressure}
             </Badge>
           )}
