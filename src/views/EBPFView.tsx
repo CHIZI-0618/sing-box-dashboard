@@ -323,6 +323,20 @@ function InboundSection(props: {
             label={t("Effective paths")}
             value={<PathBadges inbound={inbound} />}
           />
+          {inbound.waitingRoles.length > 0 && (
+            <DataLine
+              label={t("Waiting paths")}
+              value={inbound.waitingRoles.join(", ")}
+              mono
+            />
+          )}
+          {inbound.waitingInterfaces.length > 0 && (
+            <DataLine
+              label={t("Waiting interfaces")}
+              value={inbound.waitingInterfaces.join(", ")}
+              mono
+            />
+          )}
           {inbound.policyEpoch && (
             <>
               <DataLine
