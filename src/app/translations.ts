@@ -223,6 +223,8 @@ export const TRANSLATIONS = {
   "Cached data; refresh failed: {error}": { "zh-Hans": "正在显示缓存数据；刷新失败：{error}", "zh-Hant": "正在顯示快取資料；重新整理失敗：{error}", "fa": "دادهٔ ذخیره‌شده؛ بازخوانی ناموفق بود: {error}", "ru": "Показаны кэшированные данные; обновление не удалось: {error}" },
   "Unable to load eBPF diagnostics: {error}": { "zh-Hans": "无法加载 eBPF 诊断：{error}", "zh-Hant": "無法載入 eBPF 診斷：{error}", "fa": "بارگیری عیب‌یابی eBPF ممکن نیست: {error}", "ru": "Не удалось загрузить диагностику eBPF: {error}" },
   "No eBPF inbound is running": { "zh-Hans": "当前没有运行中的 eBPF 入站", "zh-Hant": "目前沒有執行中的 eBPF 入站", "fa": "هیچ ورودی eBPF در حال اجرا نیست", "ru": "Нет работающих входящих eBPF" },
+  "Waiting paths": { "zh-Hans": "等待中的数据面", "zh-Hant": "等待中的資料面", "fa": "مسیرهای در انتظار", "ru": "Ожидающие пути" },
+  "Waiting interfaces": { "zh-Hans": "等待中的接口", "zh-Hant": "等待中的介面", "fa": "رابط‌های در انتظار", "ru": "Ожидающие интерфейсы" },
   "Overall status": { "zh-Hans": "总体状态", "zh-Hant": "整體狀態", "fa": "وضعیت کلی", "ru": "Общее состояние" },
   "{count} eBPF inbound": { "zh-Hans": "{count} 个 eBPF 入站", "zh-Hant": "{count} 個 eBPF 入站", "fa": "{count} ورودی eBPF", "ru": "Входящих eBPF: {count}" },
   "Kernel programs": { "zh-Hans": "内核程序", "zh-Hant": "核心程式", "fa": "برنامه‌های هسته", "ru": "Программы ядра" },
