@@ -253,6 +253,7 @@ export const TRANSLATIONS = {
   "Recovery queue overflows": { "zh-Hans": "恢复队列溢出", "zh-Hant": "復原佇列溢出", "fa": "سرریز صف بازیابی", "ru": "Переполнения очереди восстановления" },
   "partial": { "zh-Hans": "部分扫描", "zh-Hant": "部分掃描", "fa": "بخشی", "ru": "частичных" },
   "Not applicable": { "zh-Hans": "不适用", "zh-Hant": "不適用", "fa": "قابل اعمال نیست", "ru": "Неприменимо" },
+  "Configured": { "zh-Hans": "按配置", "zh-Hant": "按配置", "fa": "پیکربندی‌شده", "ru": "Настроено" },
   "Active": { "zh-Hans": "活动", "zh-Hant": "活動", "fa": "فعال", "ru": "Активно" },
   "Last health check": { "zh-Hans": "最近健康检查", "zh-Hant": "最近健康檢查", "fa": "آخرین بررسی سلامت", "ru": "Последняя проверка" },
   "Last reconcile": { "zh-Hans": "最近重同步", "zh-Hant": "最近重新同步", "fa": "آخرین reconcile", "ru": "Последняя сверка" },

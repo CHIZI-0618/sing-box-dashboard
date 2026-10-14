@@ -1021,8 +1021,9 @@ function KernelRuntimeSection(props: { runtime: EBPFKernelRuntimeDiagnostics }) 
 function MapItem(props: { map: EBPFMapDiagnostics; language: string }) {
   const { t } = useI18n();
   const map = props.map;
+  const occupancyConfigured = map.pressure === "configured";
   const occupancyNotApplicable = !map.supported && map.pressure === "not_applicable";
-  const percent = map.supported ? occupancyPercent(map.entries, map.maxEntries) : null;
+  const percent = map.supported && !occupancyConfigured ? occupancyPercent(map.entries, map.maxEntries) : null;
   return (
     <div className={styles.item}>
       <div className={styles.itemTitle}>
@@ -1036,12 +1037,12 @@ function MapItem(props: { map: EBPFMapDiagnostics; language: string }) {
                   ? "good"
                   : map.pressure === "warning"
                     ? "medium"
-                    : map.pressure === "not_applicable"
+                      : map.pressure === "not_applicable" || occupancyConfigured
                       ? undefined
                       : "bad"
               }
             >
-              {occupancyNotApplicable ? t("Not applicable") : map.pressure}
+              {occupancyConfigured ? t("Configured") : occupancyNotApplicable ? t("Not applicable") : map.pressure}
             </Badge>
           )}
         </span>
