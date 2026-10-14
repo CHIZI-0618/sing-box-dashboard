@@ -474,6 +474,26 @@ function InboundSection(props: {
               value={formatCount(inbound.tcNetworkGeneration, language)}
               mono
             />
+            <DataLine
+              label={t("Assignment map")}
+              value={`${formatCount(inbound.tcAssignmentSweepEntries, language)} / ${formatCount(inbound.tcAssignmentSweepCapacity, language)}`}
+              mono
+            />
+            <DataLine
+              label={t("Assignment pressure")}
+              value={inbound.tcAssignmentSweepPressure ? t("Active") : t("Normal")}
+              mono
+            />
+            <DataLine
+              label={t("Assignment sweeps")}
+              value={`${formatCount(inbound.tcAssignmentSweepRuns, language)} · ${formatCount(inbound.tcAssignmentSweepPartial, language)} ${t("partial")}`}
+              mono
+            />
+            <DataLine
+              label={t("Recovery queue overflows")}
+              value={formatCount(inbound.cgroupRecoveryQueueOverflows, language)}
+              mono
+            />
             <OptionalTime label={t("Last health check")} value={inbound.tcLastHealthCheckAt} />
             <OptionalTime label={t("Last reconcile")} value={inbound.tcLastReconcileAt} />
             {inbound.tcRequiresRebuild && (
