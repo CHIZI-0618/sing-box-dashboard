@@ -489,6 +489,13 @@ function InboundSection(props: {
               value={`${formatCount(inbound.tcAssignmentSweepRuns, language)} · ${formatCount(inbound.tcAssignmentSweepPartial, language)} ${t("partial")}`}
               mono
             />
+            {inbound.tcAssignmentSweepFailure && (
+              <DataLine
+                label={t("Assignment sweep failure")}
+                value={inbound.tcAssignmentSweepFailure}
+                mono
+              />
+            )}
             <DataLine
               label={t("Recovery queue overflows")}
               value={formatCount(inbound.cgroupRecoveryQueueOverflows, language)}
