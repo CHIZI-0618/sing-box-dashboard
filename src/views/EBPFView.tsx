@@ -1021,6 +1021,7 @@ function KernelRuntimeSection(props: { runtime: EBPFKernelRuntimeDiagnostics }) 
 function MapItem(props: { map: EBPFMapDiagnostics; language: string }) {
   const { t } = useI18n();
   const map = props.map;
+  const occupancyNotApplicable = !map.supported && map.pressure === "not_applicable";
   const percent = map.supported ? occupancyPercent(map.entries, map.maxEntries) : null;
   return (
     <div className={styles.item}>
@@ -1040,7 +1041,7 @@ function MapItem(props: { map: EBPFMapDiagnostics; language: string }) {
                       : "bad"
               }
             >
-              {map.pressure}
+              {occupancyNotApplicable ? t("Not applicable") : map.pressure}
             </Badge>
           )}
         </span>
@@ -1051,7 +1052,9 @@ function MapItem(props: { map: EBPFMapDiagnostics; language: string }) {
         value={
           map.supported
             ? `${map.entries.toLocaleString(props.language)} / ${map.maxEntries.toLocaleString(props.language)}`
-            : t("Occupancy unavailable")
+            : occupancyNotApplicable
+              ? t("Not applicable")
+              : t("Occupancy unavailable")
         }
         mono={map.supported}
       />
@@ -1061,7 +1064,9 @@ function MapItem(props: { map: EBPFMapDiagnostics; language: string }) {
           <span>{percent.toFixed(percent < 10 ? 1 : 0)}%</span>
         </div>
       )}
-      {map.error !== "" && <div className={styles.warningInline}>{map.error}</div>}
+      {map.error !== "" && !occupancyNotApplicable && (
+        <div className={styles.warningInline}>{map.error}</div>
+      )}
     </div>
   );
 }
