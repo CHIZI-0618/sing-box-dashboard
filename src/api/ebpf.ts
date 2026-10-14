@@ -114,6 +114,7 @@ export function occupancyPercent(entries: number, maxEntries: number): number | 
 export interface EBPFMapHealth {
   total: number;
   supported: number;
+  configured: number;
   notApplicable: number;
   unavailable: number;
   high: number;
@@ -122,10 +123,15 @@ export interface EBPFMapHealth {
 export function ebpfMapHealth(runtime: EBPFKernelRuntimeDiagnostics | undefined): EBPFMapHealth {
   const maps = runtime?.mapOccupancy?.maps ?? [];
   let supported = 0;
+  let configured = 0;
   let notApplicable = 0;
   let unavailable = 0;
   let high = 0;
   for (const map of maps) {
+    if (map.pressure === "configured") {
+      configured++;
+      continue;
+    }
     if (!map.supported) {
       // Fixed-layout maps (Array, SockMap, PerCPUArray, ...) do not expose
       // a meaningful safe key traversal for generic occupancy counting. The
@@ -144,7 +150,7 @@ export function ebpfMapHealth(runtime: EBPFKernelRuntimeDiagnostics | undefined)
       high++;
     }
   }
-  return { total: maps.length, supported, notApplicable, unavailable, high };
+  return { total: maps.length, supported, configured, notApplicable, unavailable, high };
 }
 
 export function unixMillis(value: bigint | undefined): number | null {
