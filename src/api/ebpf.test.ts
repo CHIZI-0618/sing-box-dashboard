@@ -65,7 +65,7 @@ describe("eBPF diagnostics helpers", () => {
             { entries: 9, maxEntries: 10, supported: true },
             { entries: 1, maxEntries: 10, supported: true },
             { entries: 10, maxEntries: 10, supported: true, pressure: "configured" },
-            { entries: 0, maxEntries: 0, supported: false, pressure: "not_applicable" },
+            { entries: 0, maxEntries: 0, supported: true, pressure: "not_applicable" },
             { entries: 0, maxEntries: 0, supported: false, pressure: "recovery_failed" },
           ],
         },

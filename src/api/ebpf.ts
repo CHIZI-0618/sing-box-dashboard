@@ -132,16 +132,14 @@ export function ebpfMapHealth(runtime: EBPFKernelRuntimeDiagnostics | undefined)
       configured++;
       continue;
     }
+    if (map.pressure === "not_applicable") {
+      notApplicable++;
+      continue;
+    }
     if (!map.supported) {
-      // Fixed-layout maps (Array, SockMap, PerCPUArray, ...) do not expose
-      // a meaningful safe key traversal for generic occupancy counting. The
-      // backend reports these explicitly as not_applicable; they are not a
-      // diagnostic failure and must not turn overall map health yellow.
-      if (map.pressure === "not_applicable") {
-        notApplicable++;
-      } else {
-        unavailable++;
-      }
+      // Unsupported maps with any status other than not_applicable represent
+      // an actual inability to collect occupancy and remain actionable.
+      unavailable++;
       continue;
     }
     supported++;
