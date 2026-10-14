@@ -249,6 +249,7 @@ export const TRANSLATIONS = {
   "Assignment map": { "zh-Hans": "Assignment Map", "zh-Hant": "Assignment Map", "fa": "نقشهٔ assignment", "ru": "Карта assignment" },
   "Assignment pressure": { "zh-Hans": "Assignment 压力", "zh-Hant": "Assignment 壓力", "fa": "فشار assignment", "ru": "Давление assignment" },
   "Assignment sweeps": { "zh-Hans": "Assignment 清理", "zh-Hant": "Assignment 清理", "fa": "پاک‌سازی assignment", "ru": "Очистка assignment" },
+  "Assignment sweep failure": { "zh-Hans": "Assignment 清理失败", "zh-Hant": "Assignment 清理失敗", "fa": "خطای پاک‌سازی assignment", "ru": "Ошибка очистки assignment" },
   "Recovery queue overflows": { "zh-Hans": "恢复队列溢出", "zh-Hant": "復原佇列溢出", "fa": "سرریز صف بازیابی", "ru": "Переполнения очереди восстановления" },
   "partial": { "zh-Hans": "部分扫描", "zh-Hant": "部分掃描", "fa": "بخشی", "ru": "частичных" },
   "Active": { "zh-Hans": "活动", "zh-Hant": "活動", "fa": "فعال", "ru": "Активно" },
