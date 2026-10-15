@@ -11,7 +11,7 @@ import {
 } from "../gen/daemon/started_service_pb";
 import type { DelayTone } from "./format";
 
-export const SUPPORTED_EBPF_SCHEMA_VERSION = 15;
+export const SUPPORTED_EBPF_SCHEMA_VERSION = 16;
 
 export function ebpfDiagnosticsSchemaVersion(diagnostics: EBPFDiagnosticsResponse): number {
   return diagnostics.schemaVersion;
@@ -128,8 +128,8 @@ export function ebpfMapHealth(runtime: EBPFKernelRuntimeDiagnostics | undefined)
   let unavailable = 0;
   let high = 0;
   for (const map of maps) {
-    if (map.pressure === "configured") {
-      configured++;
+    if (map.pressure === "recovery_failed") {
+      unavailable++;
       continue;
     }
     if (map.pressure === "not_applicable") {
@@ -140,6 +140,10 @@ export function ebpfMapHealth(runtime: EBPFKernelRuntimeDiagnostics | undefined)
       // Unsupported maps with any status other than not_applicable represent
       // an actual inability to collect occupancy and remain actionable.
       unavailable++;
+      continue;
+    }
+    if (map.category === "configured_policy") {
+      configured++;
       continue;
     }
     supported++;

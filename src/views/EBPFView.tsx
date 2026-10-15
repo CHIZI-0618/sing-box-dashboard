@@ -1021,8 +1021,10 @@ function KernelRuntimeSection(props: { runtime: EBPFKernelRuntimeDiagnostics }) 
 function MapItem(props: { map: EBPFMapDiagnostics; language: string }) {
   const { t } = useI18n();
   const map = props.map;
-  const occupancyConfigured = map.pressure === "configured";
+  const occupancyRecoveryFailed = map.pressure === "recovery_failed";
   const occupancyNotApplicable = map.pressure === "not_applicable";
+  const occupancyConfigured =
+    map.category === "configured_policy" && map.supported && !occupancyRecoveryFailed && !occupancyNotApplicable;
   const percent = map.supported && !occupancyConfigured ? occupancyPercent(map.entries, map.maxEntries) : null;
   return (
     <div className={styles.item}>

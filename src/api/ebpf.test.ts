@@ -64,19 +64,21 @@ describe("eBPF diagnostics helpers", () => {
           maps: [
             { entries: 9, maxEntries: 10, supported: true },
             { entries: 1, maxEntries: 10, supported: true },
-            { entries: 10, maxEntries: 10, supported: true, pressure: "configured" },
-            { entries: 0, maxEntries: 0, supported: true, pressure: "not_applicable" },
+            { entries: 10, maxEntries: 10, supported: true, category: "configured_policy", pressure: "configured" },
+            { entries: 0, maxEntries: 0, supported: true, category: "runtime", pressure: "not_applicable" },
             { entries: 0, maxEntries: 0, supported: false, pressure: "recovery_failed" },
+            { entries: 0, maxEntries: 10, supported: true, category: "configured_policy", pressure: "recovery_failed" },
+            { entries: 0, maxEntries: 0, supported: false, category: "configured_policy", pressure: "not_applicable" },
           ],
         },
       },
     }).kernelRuntime;
     expect(ebpfMapHealth(runtime)).toEqual({
-      total: 5,
+      total: 7,
       supported: 2,
       configured: 1,
-      notApplicable: 1,
-      unavailable: 1,
+      notApplicable: 2,
+      unavailable: 2,
       high: 1,
     });
     expect(ebpfMapHealth(undefined)).toEqual({
