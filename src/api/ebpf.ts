@@ -131,7 +131,7 @@ export function ebpfMapHealth(runtime: EBPFKernelRuntimeDiagnostics | undefined)
   let unavailable = 0;
   let high = 0;
   for (const map of maps) {
-    if (map.pressure === "recovery_failed") {
+    if (map.error !== "" || map.pressure === "recovery_failed") {
       unavailable++;
       continue;
     }
@@ -139,7 +139,7 @@ export function ebpfMapHealth(runtime: EBPFKernelRuntimeDiagnostics | undefined)
       notApplicable++;
       continue;
     }
-    if (!map.supported) {
+    if (!map.supported || map.maxEntries === 0) {
       // Unsupported maps with any status other than not_applicable represent
       // an actual inability to collect occupancy and remain actionable.
       unavailable++;
@@ -156,6 +156,44 @@ export function ebpfMapHealth(runtime: EBPFKernelRuntimeDiagnostics | undefined)
     }
   }
   return { total: maps.length, supported, configured, notApplicable, unavailable, high };
+}
+
+export type EBPFMapPressure = "high" | "clear" | "not_collected" | "unavailable";
+
+/** Missing or failed measurements never prove that a previous pressure cleared. */
+export function ebpfMapPressure(runtime: EBPFKernelRuntimeDiagnostics | undefined): EBPFMapPressure {
+  const occupancy = runtime?.mapOccupancy;
+  if (occupancy === undefined) return "not_collected";
+  const health = ebpfMapHealth(runtime);
+  if (health.high > 0) return "high";
+  if (occupancy.error !== "" || health.total === 0 || health.unavailable > 0 ||
+      !["pass", "warning", "degraded"].includes(occupancy.status)) return "unavailable";
+  return "clear";
+}
+
+export type EBPFHealthKind =
+  | "healthy"
+  | "unverified"
+  | "degraded"
+  | "recovering"
+  | "policy_pending"
+  | "attachment_lost"
+  | "map_pressure"
+  | "udp_recovery_failed";
+
+export function ebpfInboundHealth(inbound: EBPFInboundDiagnostics): EBPFHealthKind {
+  if (inbound.recoveryUnrecoverable || inbound.localUdpState === "recovery_degraded") {
+    return inbound.localUdpState === "recovery_degraded" ? "udp_recovery_failed" : "attachment_lost";
+  }
+  if (inbound.tcRequiresRebuild || inbound.tcHealthStatus === "lost") return "attachment_lost";
+  if (inbound.recoveryPending || inbound.state === "recovering") return "recovering";
+  if (inbound.localBypassRuleSet?.pending || inbound.sharedBypassRuleSet?.pending ||
+      (inbound.policyEpoch !== undefined && !inbound.policyEpoch.converged)) return "policy_pending";
+  const pressure = ebpfMapPressure(inbound.kernelRuntime);
+  if (pressure === "high" || inbound.tcAssignmentSweepPressure || inbound.localUdpState === "map_pressure") return "map_pressure";
+  if (inbound.state !== "normal" || inbound.localUdpState === "timeout_fallback" ||
+      inbound.localUdpState === "release_notification") return "degraded";
+  return pressure === "clear" ? "healthy" : "unverified";
 }
 
 export function unixMillis(value: bigint | undefined): number | null {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import {
   ebpfDiagnosticsJson,
+  ebpfInboundHealth,
   ebpfMapHealth,
   ebpfTCDegradation,
   ebpfStateTone,
@@ -9,6 +10,7 @@ import {
   positiveCounterDelta,
   unixMillis,
   worstEBPFState,
+  type EBPFHealthKind as HealthKind,
 } from "../api/ebpf";
 import { formatDateTime } from "../api/format";
 import { useQuery } from "../api/query";
@@ -38,15 +40,6 @@ import { ToolsPageHeader } from "./ToolsView";
 import styles from "./EBPFView.module.css";
 
 type CounterKey = keyof Omit<EBPFCounters, "$typeName" | "$unknown">;
-
-type HealthKind =
-  | "healthy"
-  | "degraded"
-  | "recovering"
-  | "policy_pending"
-  | "attachment_lost"
-  | "map_pressure"
-  | "udp_recovery_failed";
 
 interface DiagnosticEvent {
   id: string;
@@ -104,8 +97,8 @@ export function EBPFView() {
       const observedAt = diagnostics.fetchedAt ?? Number(data.inbounds[0]?.observedAt ?? 0n);
       for (const inbound of data.inbounds) {
         const before = previousInbounds.current.get(inbound.tag);
-        const currentHealth = inboundHealth(inbound, ebpfMapHealth(inbound.kernelRuntime).high > 0);
-        const previousHealth = before === undefined ? undefined : inboundHealth(before, ebpfMapHealth(before.kernelRuntime).high > 0);
+        const currentHealth = ebpfInboundHealth(inbound);
+        const previousHealth = before === undefined ? undefined : ebpfInboundHealth(before);
         if (before === undefined || previousHealth !== currentHealth) {
           additions.push({
             id: `${inbound.tag}/${observedAt}/${currentHealth}`,
@@ -196,7 +189,6 @@ export function EBPFView() {
               inbound={inbound}
               previous={previous.get(inbound.tag)}
               events={events.filter((event) => event.tag === inbound.tag)}
-              mapPressure={ebpfMapHealth(inbound.kernelRuntime).high > 0}
             />
           ))}
           {data.kernelRuntime && <KernelRuntimeSection runtime={data.kernelRuntime} />}
@@ -281,7 +273,6 @@ function InboundSection(props: {
   inbound: EBPFInboundDiagnostics;
   previous?: EBPFInboundDiagnostics;
   events: DiagnosticEvent[];
-  mapPressure: boolean;
 }) {
   const { t, language } = useI18n();
   const inbound = props.inbound;
@@ -304,7 +295,7 @@ function InboundSection(props: {
         </div>
       )}
       {inbound.kernelRuntime && <KernelRuntimeSection runtime={inbound.kernelRuntime} />}
-      <HealthCard inbound={inbound} events={props.events} mapPressure={props.mapPressure} />
+      <HealthCard inbound={inbound} events={props.events} />
       <div className={styles.cardGrid}>
         <Card
           title={t("Data planes")}
@@ -587,42 +578,12 @@ function InboundSection(props: {
   );
 }
 
-function inboundHealth(inbound: EBPFInboundDiagnostics, mapPressure: boolean): HealthKind {
-  if (inbound.recoveryUnrecoverable || inbound.localUdpState === "recovery_degraded") {
-    return inbound.localUdpState === "recovery_degraded"
-      ? "udp_recovery_failed"
-      : "attachment_lost";
-  }
-  if (inbound.tcRequiresRebuild || inbound.tcHealthStatus === "lost") {
-    return "attachment_lost";
-  }
-  if (inbound.recoveryPending || inbound.state === "recovering") {
-    return "recovering";
-  }
-  if (
-    inbound.localBypassRuleSet?.pending ||
-    inbound.sharedBypassRuleSet?.pending ||
-    (inbound.policyEpoch !== undefined && !inbound.policyEpoch.converged)
-  ) {
-    return "policy_pending";
-  }
-  if (mapPressure || inbound.localUdpState === "map_pressure") {
-    return "map_pressure";
-  }
-  if (
-    inbound.state !== "normal" ||
-    inbound.localUdpState === "timeout_fallback" ||
-    inbound.localUdpState === "release_notification"
-  ) {
-    return "degraded";
-  }
-  return "healthy";
-}
-
 function healthDescription(inbound: EBPFInboundDiagnostics, kind: HealthKind): string {
   switch (kind) {
     case "healthy":
-      return "All configured data planes are attached and healthy.";
+      return "All configured data planes report healthy and the collected maps are below their pressure thresholds.";
+    case "unverified":
+      return "Data planes report healthy, but map occupancy was not collected or could not be verified. This is not evidence that an earlier map pressure cleared.";
     case "degraded":
       return inbound.localUdpState === "timeout_fallback"
         ? "Socket release is unavailable; connected UDP uses reverse-index and timeout fallback."
@@ -643,6 +604,7 @@ function healthDescription(inbound: EBPFInboundDiagnostics, kind: HealthKind): s
 function healthLabel(kind: HealthKind, t: Translate): string {
   switch (kind) {
     case "healthy": return t("Healthy");
+    case "unverified": return t("Map health unverified");
     case "degraded": return t("Degraded");
     case "recovering": return t("Recovering");
     case "policy_pending": return t("Policy pending");
@@ -655,6 +617,7 @@ function healthLabel(kind: HealthKind, t: Translate): string {
 function healthTone(kind: HealthKind): "good" | "medium" | "bad" | "neutral" {
   switch (kind) {
     case "healthy": return "good";
+    case "unverified": return "neutral";
     case "recovering":
     case "policy_pending":
     case "degraded": return "medium";
@@ -667,14 +630,15 @@ function healthTone(kind: HealthKind): "good" | "medium" | "bad" | "neutral" {
 function HealthCard(props: {
   inbound: EBPFInboundDiagnostics;
   events: DiagnosticEvent[];
-  mapPressure: boolean;
 }) {
   const { t, language } = useI18n();
-  const kind = inboundHealth(props.inbound, props.mapPressure);
+  const kind = ebpfInboundHealth(props.inbound);
   const matching = props.events.filter((event) => event.kind === kind);
   const first = matching.at(-1)?.at;
   const last = matching[0]?.at;
-  const action = kind === "healthy" || kind === "degraded"
+  const action = kind === "unverified"
+    ? t("Inspect owned maps")
+    : kind === "healthy" || kind === "degraded"
     ? t("No immediate action required")
     : kind === "policy_pending" || kind === "recovering"
       ? t("Wait for the next reconcile")

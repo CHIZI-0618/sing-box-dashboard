@@ -9,6 +9,8 @@ import {
 import {
   ebpfDiagnosticsJson,
   ebpfMapHealth,
+  ebpfMapPressure,
+  ebpfInboundHealth,
   ebpfTCDegradation,
   ebpfDiagnosticsSchemaVersion,
   ebpfStateTone,
@@ -23,6 +25,49 @@ function inbound(state: string): EBPFInboundDiagnostics {
 }
 
 describe("eBPF diagnostics helpers", () => {
+  it("does not report recovery when a deep pressure snapshot is followed by lightweight data", () => {
+    const pressure = create(EBPFInboundDiagnosticsSchema, {
+      state: "normal",
+      kernelRuntime: { mapOccupancy: { status: "warning", maps: [{ entries: 9, maxEntries: 10, supported: true }] } },
+    });
+    const lightweight = create(EBPFInboundDiagnosticsSchema, { state: "normal" });
+    const recovered = create(EBPFInboundDiagnosticsSchema, {
+      state: "normal",
+      kernelRuntime: { mapOccupancy: { status: "pass", maps: [{ entries: 2, maxEntries: 10, supported: true }] } },
+    });
+    expect(ebpfMapPressure(pressure.kernelRuntime)).toBe("high");
+    expect(ebpfMapPressure(lightweight.kernelRuntime)).toBe("not_collected");
+    expect([pressure, lightweight, recovered].map(ebpfInboundHealth)).toEqual(["map_pressure", "unverified", "healthy"]);
+  });
+
+  it("keeps failed, partial and unknown occupancy unverified", () => {
+    for (const mapOccupancy of [
+      { status: "unknown", maps: [] },
+      { status: "pass", maps: [] },
+      { status: "pass", maps: [{ supported: true, maxEntries: 0 }] },
+      { status: "pass", error: "enumeration failed", maps: [] },
+      { status: "pass", maps: [{ entries: 0, maxEntries: 10, supported: true, error: "lookup failed" }] },
+      { status: "pass", maps: [{ supported: false, pressure: "unavailable" }] },
+    ]) {
+      const current = create(EBPFInboundDiagnosticsSchema, { state: "normal", kernelRuntime: { mapOccupancy } });
+      expect(ebpfMapPressure(current.kernelRuntime)).toBe("unavailable");
+      expect(ebpfInboundHealth(current)).toBe("unverified");
+    }
+  });
+
+  it("retains lightweight pressure and real failures without requiring a deep scan", () => {
+    expect(ebpfInboundHealth(create(EBPFInboundDiagnosticsSchema, { state: "normal", tcAssignmentSweepPressure: true }))).toBe("map_pressure");
+    expect(ebpfInboundHealth(create(EBPFInboundDiagnosticsSchema, { state: "normal", tcRequiresRebuild: true }))).toBe("attachment_lost");
+    expect(ebpfInboundHealth(create(EBPFInboundDiagnosticsSchema, { state: "recovering" }))).toBe("recovering");
+  });
+
+  it("does not classify configured or inapplicable maps as missing measurements", () => {
+    const current = create(EBPFInboundDiagnosticsSchema, { state: "normal", kernelRuntime: { mapOccupancy: { status: "pass", maps: [
+      { category: "configured_policy", supported: true, pressure: "configured", entries: 10, maxEntries: 10 },
+      { supported: false, pressure: "not_applicable" },
+    ] } } });
+    expect(ebpfInboundHealth(current)).toBe("healthy");
+  });
   it("keeps waiting interfaces neutral and surfaces recovery severity", () => {
     expect(ebpfStateTone("normal")).toBe("good");
     expect(ebpfStateTone("waiting_for_interface")).toBe("neutral");
