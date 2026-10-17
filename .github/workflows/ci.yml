@@ -18,6 +18,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Check source protobuf against sing-box
+        run: |
+          curl --fail --location --retry 3 https://raw.githubusercontent.com/CHIZI-0618/sing-box/ebpf-inbound/daemon/started_service.proto -o /tmp/sing-box-started_service.proto
+          diff -u /tmp/sing-box-started_service.proto proto/daemon/started_service.proto
       - run: pnpm generate
       - run: pnpm lint
       - run: pnpm lint:css
