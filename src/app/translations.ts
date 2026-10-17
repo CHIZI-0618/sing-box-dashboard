@@ -248,6 +248,7 @@ export const TRANSLATIONS = {
   "Network generation": { "zh-Hans": "网络代数", "zh-Hant": "網路代數", "fa": "نسل شبکه", "ru": "Поколение сети" },
   "Lightweight status": { "zh-Hans": "轻量状态", "zh-Hant": "輕量狀態", "fa": "وضعیت سبک", "ru": "Краткий статус" },
   "Inspect owned maps": { "zh-Hans": "深度检查所属 Map", "zh-Hant": "深入檢查所屬 Map", "fa": "بررسی نقشه‌های متعلق", "ru": "Проверить собственные карты" },
+  "Map health unverified": { "zh-Hans": "Map 健康度未验证", "zh-Hant": "Map 健康狀態未驗證", "fa": "سلامت map تأیید نشده", "ru": "Состояние карт не проверено" },
   "Return route map": { "zh-Hans": "返程路由 Map", "zh-Hant": "回程路由 Map", "fa": "نقشه مسیر بازگشت", "ru": "Карта обратных маршрутов" },
   "Network namespace": { "zh-Hans": "网络命名空间", "zh-Hant": "網路命名空間", "fa": "فضای نام شبکه", "ru": "Сетевое пространство имён" },
   "Assignment map": { "zh-Hans": "Assignment Map", "zh-Hant": "Assignment Map", "fa": "نقشهٔ assignment", "ru": "Карта assignment" },
