@@ -11,7 +11,7 @@ import {
 } from "../gen/daemon/started_service_pb";
 import type { DelayTone } from "./format";
 
-export const SUPPORTED_EBPF_SCHEMA_VERSION = 16;
+export const SUPPORTED_EBPF_SCHEMA_VERSION = 17;
 
 export function ebpfDiagnosticsSchemaVersion(diagnostics: EBPFDiagnosticsResponse): number {
   return diagnostics.schemaVersion;
@@ -68,6 +68,9 @@ const TC_DEGRADATION_COUNTERS: (keyof EBPFCounters)[] = [
   "tcSocketLookupFailures",
   "tcSKAssignFailures",
   "tcAssignmentUpdateFailures",
+  "tcReturnUpdateFailures",
+  "tcReturnConflicts",
+  "tcReturnLookupFailures",
   "rewriteFailures",
   "sharedReconcileFailures",
   "recoveryFailures",

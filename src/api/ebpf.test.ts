@@ -107,6 +107,13 @@ describe("eBPF diagnostics helpers", () => {
     });
   });
 
+  it("keeps return failures historical until their counters increase", () => {
+    const previous = create(EBPFInboundDiagnosticsSchema, { state: "normal", counters: { tcReturnConflicts: 4n } });
+    expect(ebpfTCDegradation(previous, previous)).toEqual({ failures: 4n, recentFailures: 0n, active: false });
+    const current = create(EBPFInboundDiagnosticsSchema, { state: "normal", counters: { tcReturnConflicts: 5n, tcReturnLookupFailures: 1n } });
+    expect(ebpfTCDegradation(current, previous)).toEqual({ failures: 6n, recentFailures: 2n, active: true });
+  });
+
   it("uses the response diagnostics schema version", () => {
     const current = create(EBPFDiagnosticsResponseSchema, {
       schemaVersion: 14,

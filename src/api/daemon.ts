@@ -130,6 +130,7 @@ export class DaemonApi {
   readonly openConnect: StreamStore<OpenConnectData>;
   readonly openVPN: StreamStore<OpenVPNData>;
   readonly ebpfDiagnostics: QueryStore<EBPFDiagnosticsResponse>;
+  readonly ebpfDeepDiagnostics: QueryStore<EBPFDiagnosticsResponse>;
 
   private logSequence = 0;
   private versionCache: ServerInfo | null = null;
@@ -380,6 +381,10 @@ export class DaemonApi {
       true,
     );
 
+    this.ebpfDeepDiagnostics = new QueryStore<EBPFDiagnosticsResponse>(async (signal) => {
+      await this.requireApiVersion(MIN_API_VERSION.ebpf);
+      return this.client.getEBPFDiagnostics({ deep: true }, { signal });
+    });
     this.ebpfDiagnostics = new QueryStore<EBPFDiagnosticsResponse>(async (signal) => {
       await this.requireApiVersion(MIN_API_VERSION.ebpf);
       return this.client.getEBPFDiagnostics({}, { signal });

@@ -61,6 +61,9 @@ const FAILURE_COUNTERS: CounterKey[] = [
   "tcSocketLookupFailures",
   "tcSKAssignFailures",
   "tcAssignmentUpdateFailures",
+  "tcReturnUpdateFailures",
+  "tcReturnConflicts",
+  "tcReturnLookupFailures",
   "tokenReservationFailures",
   "rewriteFailures",
   "sharedReconcileFailures",
@@ -82,26 +85,27 @@ const ACTIVITY_COUNTERS: CounterKey[] = [
 export function EBPFView() {
   const api = useApi();
   const { t, language } = useI18n();
-  const diagnostics = useQuery(api.ebpfDiagnostics);
+  const [deep, setDeep] = useState(false);
+  const diagnosticQuery = deep ? api.ebpfDeepDiagnostics : api.ebpfDiagnostics;
+  const diagnostics = useQuery(diagnosticQuery);
   const previousInbounds = useRef(new Map<string, EBPFInboundDiagnostics>());
   const [events, setEvents] = useState<DiagnosticEvent[]>([]);
 
   useEffect(() => {
-    void api.ebpfDiagnostics.refresh();
-    return () => api.ebpfDiagnostics.invalidate();
-  }, [api]);
+    void diagnosticQuery.refresh();
+    return () => diagnosticQuery.invalidate();
+  }, [diagnosticQuery]);
 
   const data = diagnostics.data;
   const previous = previousInbounds.current;
   useEffect(() => {
     if (diagnostics.phase === "loaded" && data !== null) {
-      const mapPressure = ebpfMapHealth(data.kernelRuntime).high > 0;
       const additions: DiagnosticEvent[] = [];
       const observedAt = diagnostics.fetchedAt ?? Number(data.inbounds[0]?.observedAt ?? 0n);
       for (const inbound of data.inbounds) {
         const before = previousInbounds.current.get(inbound.tag);
-        const currentHealth = inboundHealth(inbound, mapPressure);
-        const previousHealth = before === undefined ? undefined : inboundHealth(before, mapPressure);
+        const currentHealth = inboundHealth(inbound, ebpfMapHealth(inbound.kernelRuntime).high > 0);
+        const previousHealth = before === undefined ? undefined : inboundHealth(before, ebpfMapHealth(before.kernelRuntime).high > 0);
         if (before === undefined || previousHealth !== currentHealth) {
           additions.push({
             id: `${inbound.tag}/${observedAt}/${currentHealth}`,
@@ -125,6 +129,9 @@ export function EBPFView() {
         title={t("eBPF Diagnostics")}
         actions={
           <div className={styles.headerActions}>
+            <Button onClick={() => setDeep((value) => !value)}>
+              {deep ? t("Lightweight status") : t("Inspect owned maps")}
+            </Button>
             {data !== null && (
               <IconButton
                 title={t("Copy diagnostics JSON")}
@@ -142,7 +149,7 @@ export function EBPFView() {
               title={t("Refresh eBPF diagnostics")}
               aria-label={t("Refresh eBPF diagnostics")}
               disabled={diagnostics.phase === "loading"}
-              onClick={() => void api.ebpfDiagnostics.refresh()}
+              onClick={() => void diagnosticQuery.refresh()}
             >
               <Icon name="sync" />
             </IconButton>
@@ -170,7 +177,7 @@ export function EBPFView() {
                 error: diagnostics.error ?? "",
               })}
             </span>
-            <Button onClick={() => void api.ebpfDiagnostics.refresh()}>{t("Retry")}</Button>
+            <Button onClick={() => void diagnosticQuery.refresh()}>{t("Retry")}</Button>
           </EmptyState>
         ) : (
           <div className={styles.loading}>
@@ -189,7 +196,7 @@ export function EBPFView() {
               inbound={inbound}
               previous={previous.get(inbound.tag)}
               events={events.filter((event) => event.tag === inbound.tag)}
-              mapPressure={ebpfMapHealth(data.kernelRuntime).high > 0}
+              mapPressure={ebpfMapHealth(inbound.kernelRuntime).high > 0}
             />
           ))}
           {data.kernelRuntime && <KernelRuntimeSection runtime={data.kernelRuntime} />}
@@ -296,6 +303,7 @@ function InboundSection(props: {
           )}
         </div>
       )}
+      {inbound.kernelRuntime && <KernelRuntimeSection runtime={inbound.kernelRuntime} />}
       <HealthCard inbound={inbound} events={props.events} mapPressure={props.mapPressure} />
       <div className={styles.cardGrid}>
         <Card
@@ -476,7 +484,13 @@ function InboundSection(props: {
             />
             <DataLine
               label={t("Assignment map")}
-              value={`${formatCount(inbound.tcAssignmentSweepEntries, language)} / ${formatCount(inbound.tcAssignmentSweepCapacity, language)}`}
+              value={inbound.tcAssignmentSweepUsageKnown ? `${formatCount(inbound.tcAssignmentSweepEntries, language)} / ${formatCount(inbound.tcAssignmentSweepCapacity, language)}` : t("Unknown")}
+              mono
+            />
+            <DataLine label={t("Network namespace")} value={inbound.tcNetworkNamespace || "-"} mono />
+            <DataLine
+              label={t("Return route map")}
+              value={inbound.tcReturnSweepUsageKnown ? `${formatCount(inbound.tcReturnSweepEntries, language)} / ${formatCount(inbound.tcReturnSweepCapacity, language)}` : t("Unknown")}
               mono
             />
             <DataLine
@@ -492,7 +506,7 @@ function InboundSection(props: {
             {inbound.tcAssignmentSweepFailure && (
               <DataLine
                 label={t("Assignment sweep failure")}
-                value={inbound.tcAssignmentSweepFailure}
+                value={`${inbound.tcAssignmentSweepFailureMap}: ${inbound.tcAssignmentSweepFailure}`}
                 mono
               />
             )}
