@@ -243,6 +243,7 @@ export const TRANSLATIONS = {
   "Attachment mechanism": { "zh-Hans": "挂载机制", "zh-Hant": "掛載機制", "fa": "مکانیزم اتصال", "ru": "Механизм подключения" },
   "Delivery interface": { "zh-Hans": "投递接口", "zh-Hant": "投遞介面", "fa": "رابط تحویل", "ru": "Интерфейс доставки" },
   "Policy routing": { "zh-Hans": "策略路由", "zh-Hant": "策略路由", "fa": "مسیریابی سیاستی", "ru": "Политическая маршрутизация" },
+  "Instance slot": { "zh-Hans": "实例槽位", "zh-Hant": "實例槽位", "fa": "شیار نمونه", "ru": "Слот экземпляра" },
   "retired {attachments} / {deliveries}": { "zh-Hans": "待回收 {attachments} / {deliveries}", "zh-Hant": "待回收 {attachments} / {deliveries}", "fa": "بازنشسته {attachments} / {deliveries}", "ru": "Ожидают очистки: {attachments} / {deliveries}" },
   "Health": { "zh-Hans": "健康状态", "zh-Hant": "健康狀態", "fa": "سلامت", "ru": "Состояние" },
   "Network generation": { "zh-Hans": "网络代数", "zh-Hant": "網路代數", "fa": "نسل شبکه", "ru": "Поколение сети" },
