@@ -451,7 +451,7 @@ function InboundSection(props: {
             />
             <DataLine
               label={t("Policy routing")}
-              value={`mark=${inbound.tcRoutingMark} table=${inbound.tcRoutingTable} priority=${inbound.tcRoutingPriority}`}
+              value={`mark=${inbound.tcRoutingMark} table=${inbound.tcRoutingTable} priority=${inbound.tcRoutingPriority} slot=${inbound.tcRoutingSlot}`}
               mono
             />
             <DataLine
@@ -557,6 +557,7 @@ function InboundSection(props: {
                   </div>
                   <div className={styles.itemDetails}>
                     <DataLine label={t("Role")} value={attachment.role || "-"} mono />
+                    <DataLine label={t("Instance slot")} value={attachment.slot} mono />
                     <DataLine label={t("Framing")} value={attachment.framing || "-"} mono />
                     <DataLine label={t("Mechanism")} value={attachment.mechanism || "-"} mono />
                     <DataLine
