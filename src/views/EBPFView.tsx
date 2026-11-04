@@ -1029,6 +1029,9 @@ function MapItem(props: { map: EBPFMapDiagnostics; language: string }) {
         </span>
       </div>
       <DataLine label="ID" value={map.id} mono />
+      {map.occupancyMode !== "" && <DataLine label={t("Occupancy mode")} value={map.occupancyMode} mono />}
+      {map.evictionMode !== "" && <DataLine label={t("Eviction mode")} value={map.evictionMode} mono />}
+      {map.admissionCritical && <DataLine label={t("Admission critical")} value={t("Yes")} />}
       <DataLine
         label={t("Entries")}
         value={

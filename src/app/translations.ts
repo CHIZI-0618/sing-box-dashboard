@@ -352,6 +352,10 @@ export const TRANSLATIONS = {
   "Occupancy unavailable": { "zh-Hans": "无法统计占用", "zh-Hant": "無法統計佔用", "fa": "آمار اشغال در دسترس نیست", "ru": "Заполнение недоступно" },
   "Program maps": { "zh-Hans": "关联 map", "zh-Hant": "關聯 map", "fa": "نقشه‌های برنامه", "ru": "Карты программы" },
   "Entries": { "zh-Hans": "条目", "zh-Hant": "項目", "fa": "ورودی‌ها", "ru": "Записи" },
+  "Occupancy mode": { "zh-Hans": "占用统计方式", "zh-Hant": "佔用統計方式", "fa": "روش آمار اشغال", "ru": "Метод заполнения" },
+  "Eviction mode": { "zh-Hans": "淘汰方式", "zh-Hant": "淘汰方式", "fa": "روش حذف", "ru": "Метод вытеснения" },
+  "Admission critical": { "zh-Hans": "准入关键", "zh-Hant": "准入關鍵", "fa": "حیاتی برای پذیرش", "ru": "Критично для допуска" },
+  "Yes": { "zh-Hans": "是", "zh-Hant": "是", "fa": "بله", "ru": "Да" },
   "Unsupported": { "zh-Hans": "不支持", "zh-Hant": "不支援", "fa": "پشتیبانی‌نشده", "ru": "Не поддерживается" },
 
   "Flavor": { "zh-Hans": "协议类型", "zh-Hant": "協議類型", "fa": "نوع پروتکل", "ru": "Вариант протокола" },
@@ -389,7 +393,6 @@ export const TRANSLATIONS = {
   "Key expiry": { "zh-Hans": "密钥过期", "zh-Hant": "金鑰到期", "fa": "انقضای کلید", "ru": "Срок действия ключа" },
   "Last seen": { "zh-Hans": "最后在线", "zh-Hant": "最後上線", "fa": "آخرین بازدید", "ru": "Был(а) в сети" },
   "Available": { "zh-Hans": "可用", "zh-Hant": "可用", "fa": "در دسترس", "ru": "Доступно" },
-  "Yes": { "zh-Hans": "是", "zh-Hant": "是", "fa": "بله", "ru": "Да" },
   "Connect via SSH": { "zh-Hans": "通过 SSH 连接", "zh-Hant": "透過 SSH 連接", "fa": "اتصال از طریق SSH", "ru": "Подключиться по SSH" },
   "Ping": { "zh-Hans": "Ping", "zh-Hant": "Ping", "fa": "پینگ", "ru": "Пинг" },
   "Start": { "zh-Hans": "开始", "zh-Hant": "開始", "fa": "شروع", "ru": "Запустить" },

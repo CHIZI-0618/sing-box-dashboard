@@ -853,6 +853,9 @@ message EBPFMapDiagnostics {
   string error = 10;
   string pressure = 11;
   string category = 12;
+	string occupancyMode = 13;
+	string evictionMode = 14;
+	bool admissionCritical = 15;
 }
 
 message EBPFInboundDiagnostics {
