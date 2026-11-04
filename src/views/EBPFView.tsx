@@ -876,6 +876,36 @@ function UDPRuntime(props: {
             value={nat.releaseNotificationDrops}
             previous={props.previous?.udpNAT?.releaseNotificationDrops}
           />
+          <CounterLine
+            label={t("Redirect admission failures")}
+            value={nat.redirectAdmissionFailures}
+            previous={props.previous?.udpNAT?.redirectAdmissionFailures}
+          />
+          <CounterLine
+            label={t("UDP token admission failures")}
+            value={nat.udpTokenAdmissionFailures}
+            previous={props.previous?.udpNAT?.udpTokenAdmissionFailures}
+          />
+          <CounterLine
+            label={t("UDP token reverse failures")}
+            value={nat.udpTokenReverseFailures}
+            previous={props.previous?.udpNAT?.udpTokenReverseFailures}
+          />
+          <CounterLine
+            label={t("UDP peer admission failures")}
+            value={nat.udpPeerAdmissionFailures}
+            previous={props.previous?.udpNAT?.udpPeerAdmissionFailures}
+          />
+          <CounterLine
+            label={t("TCP peer admission failures")}
+            value={nat.tcpPeerAdmissionFailures}
+            previous={props.previous?.udpNAT?.tcpPeerAdmissionFailures}
+          />
+          <CounterLine
+            label={t("UDP recovery admission failures")}
+            value={nat.udpRecoveryAdmissionFailures}
+            previous={props.previous?.udpNAT?.udpRecoveryAdmissionFailures}
+          />
         </>
       )}
     </Card>

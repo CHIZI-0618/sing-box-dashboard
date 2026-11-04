@@ -1003,6 +1003,12 @@ message EBPFUDPNATDiagnostics {
   uint64 socketReleaseMatched = 6;
   uint64 pendingReleaseCapacityRejected = 7;
   uint64 releaseNotificationDrops = 8;
+  uint64 redirectAdmissionFailures = 9;
+  uint64 udpTokenAdmissionFailures = 10;
+  uint64 udpTokenReverseFailures = 11;
+  uint64 udpPeerAdmissionFailures = 12;
+  uint64 tcpPeerAdmissionFailures = 13;
+  uint64 udpRecoveryAdmissionFailures = 14;
 }
 
 message EBPFPolicyEpochDiagnostics {
