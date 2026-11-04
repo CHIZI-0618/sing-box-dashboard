@@ -355,6 +355,10 @@ export const TRANSLATIONS = {
   "Occupancy mode": { "zh-Hans": "占用统计方式", "zh-Hant": "佔用統計方式", "fa": "روش آمار اشغال", "ru": "Метод заполнения" },
   "Eviction mode": { "zh-Hans": "淘汰方式", "zh-Hant": "淘汰方式", "fa": "روش حذف", "ru": "Метод вытеснения" },
   "Admission critical": { "zh-Hans": "准入关键", "zh-Hant": "准入關鍵", "fa": "حیاتی برای پذیرش", "ru": "Критично для допуска" },
+  "Assignment retirement": { "zh-Hans": "Assignment 回收", "zh-Hant": "Assignment 回收", "fa": "بازنشستگی تخصیص", "ru": "Освобождение assignment" },
+  "missing": { "zh-Hans": "缺失", "zh-Hant": "缺失", "fa": "مفقود", "ru": "отсутствует" },
+  "superseded": { "zh-Hans": "已被替代", "zh-Hant": "已被取代", "fa": "جایگزین‌شده", "ru": "заменено" },
+  "in flight": { "zh-Hans": "活动中", "zh-Hant": "活動中", "fa": "در حال اجرا", "ru": "в работе" },
   "Yes": { "zh-Hans": "是", "zh-Hant": "是", "fa": "بله", "ru": "Да" },
   "Unsupported": { "zh-Hans": "不支持", "zh-Hant": "不支援", "fa": "پشتیبانی‌نشده", "ru": "Не поддерживается" },
 

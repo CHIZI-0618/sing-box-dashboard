@@ -934,6 +934,9 @@ message EBPFInboundDiagnostics {
   bool tcReturnSweepUsageKnown = 79;
   string tcAssignmentSweepFailureMap = 80;
   int32 tcRoutingSlot = 81;
+  uint64 tcAssignmentSweepMissing = 82;
+  uint64 tcAssignmentSweepSuperseded = 83;
+  uint64 tcAssignmentSweepInFlight = 84;
 }
 
 message EBPFAttachmentDiagnostics {
