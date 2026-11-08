@@ -174,6 +174,7 @@ export function ebpfMapPressure(runtime: EBPFKernelRuntimeDiagnostics | undefine
 export type EBPFHealthKind =
   | "healthy"
   | "unverified"
+	| "waiting"
   | "degraded"
   | "recovering"
   | "policy_pending"
@@ -191,8 +192,12 @@ export function ebpfInboundHealth(inbound: EBPFInboundDiagnostics): EBPFHealthKi
       (inbound.policyEpoch !== undefined && !inbound.policyEpoch.converged)) return "policy_pending";
   const pressure = ebpfMapPressure(inbound.kernelRuntime);
   if (pressure === "high" || inbound.tcAssignmentSweepPressure || inbound.localUdpState === "map_pressure") return "map_pressure";
-  if (inbound.state !== "normal" || inbound.localUdpState === "timeout_fallback" ||
-      inbound.localUdpState === "release_notification") return "degraded";
+  // release_notification is the full socket-release path; only the timeout
+  // path is a fallback. A missing interface is expected for optional
+  // downstream/hotspot attachments and is shown as waiting below.
+  if (inbound.localUdpState === "timeout_fallback") return "degraded";
+  if (inbound.state === "waiting_for_interface") return "waiting";
+  if (inbound.state !== "normal") return "degraded";
   return pressure === "clear" ? "healthy" : "unverified";
 }
 

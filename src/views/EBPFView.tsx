@@ -594,7 +594,12 @@ function healthDescription(inbound: EBPFInboundDiagnostics, kind: HealthKind): s
       return "All configured data planes report healthy and the collected maps are below their pressure thresholds.";
     case "unverified":
       return "Data planes report healthy, but map occupancy was not collected or could not be verified. This is not evidence that an earlier map pressure cleared.";
+    case "waiting":
+      return "A configured data plane has no interface to attach to yet; it attaches automatically when the interface appears.";
     case "degraded":
+      if (inbound.state === "needs_attention") {
+        return "A component cannot recover on its own; restart the inbound.";
+      }
       return inbound.localUdpState === "timeout_fallback"
         ? "Socket release is unavailable; connected UDP uses reverse-index and timeout fallback."
         : "A configured data plane is operating on a fallback path.";
@@ -615,6 +620,7 @@ function healthLabel(kind: HealthKind, t: Translate): string {
   switch (kind) {
     case "healthy": return t("Healthy");
     case "unverified": return t("Map health unverified");
+    case "waiting": return t("Waiting for interface");
     case "degraded": return t("Degraded");
     case "recovering": return t("Recovering");
     case "policy_pending": return t("Policy pending");
@@ -627,7 +633,8 @@ function healthLabel(kind: HealthKind, t: Translate): string {
 function healthTone(kind: HealthKind): "good" | "medium" | "bad" | "neutral" {
   switch (kind) {
     case "healthy": return "good";
-    case "unverified": return "neutral";
+    case "unverified":
+    case "waiting": return "neutral";
     case "recovering":
     case "policy_pending":
     case "degraded": return "medium";
@@ -648,7 +655,7 @@ function HealthCard(props: {
   const last = matching[0]?.at;
   const action = kind === "unverified"
     ? t("Inspect owned maps")
-    : kind === "healthy" || kind === "degraded"
+    : kind === "healthy" || kind === "degraded" || kind === "waiting"
     ? t("No immediate action required")
     : kind === "policy_pending" || kind === "recovering"
       ? t("Wait for the next reconcile")

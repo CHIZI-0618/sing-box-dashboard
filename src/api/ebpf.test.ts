@@ -76,6 +76,17 @@ describe("eBPF diagnostics helpers", () => {
     expect(ebpfStateTone("future_state")).toBe("neutral");
   });
 
+  it("distinguishes healthy UDP release and waiting interfaces from fallback", () => {
+    const pass = { mapOccupancy: { status: "pass", maps: [{ supported: true, pressure: "healthy", entries: 1, maxEntries: 10 }] } };
+    const health = (fields: object) => ebpfInboundHealth(create(EBPFInboundDiagnosticsSchema, { kernelRuntime: pass, ...fields }));
+    expect(health({ state: "normal", localUdpState: "release_notification" })).toBe("healthy");
+    expect(health({ state: "normal", localUdpState: "socket_release" })).toBe("healthy");
+    expect(health({ state: "normal", localUdpState: "timeout_fallback" })).toBe("degraded");
+    expect(health({ state: "waiting_for_interface" })).toBe("waiting");
+    expect(health({ state: "waiting_for_interface", localUdpState: "timeout_fallback" })).toBe("degraded");
+    expect(health({ state: "needs_attention" })).toBe("degraded");
+  });
+
   it("selects the worst state without treating unknown values as healthy", () => {
     expect(worstEBPFState([])).toBeNull();
     expect(worstEBPFState([inbound("normal"), inbound("recovering")])).toBe("recovering");
