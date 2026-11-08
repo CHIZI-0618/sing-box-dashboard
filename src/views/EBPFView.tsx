@@ -369,10 +369,6 @@ function InboundSection(props: {
                 value={inbound.localSelfBypassCleanupMode || "-"}
                 mono
               />
-              <DataLine
-                label={t("Self-bypass mark")}
-                value={inbound.localSelfBypassMarkEnabled ? t("Enabled") : t("Disabled")}
-              />
             </>
           )}
           {inbound.localCgroupAttachMode !== "" && (
