@@ -271,6 +271,7 @@ export const TRANSLATIONS = {
   "Cgroup attach": { "zh-Hans": "Cgroup 挂载", "zh-Hant": "Cgroup 掛載", "fa": "اتصال Cgroup", "ru": "Подключение cgroup" },
   "Self-bypass": { "zh-Hans": "自身绕过", "zh-Hant": "自身繞過", "fa": "دور زدن خودی", "ru": "Самообход" },
   "Self-bypass cleanup": { "zh-Hans": "自身绕过清理", "zh-Hant": "自身繞過清理", "fa": "پاک‌سازی دور زدن خودی", "ru": "Очистка самообхода" },
+  "Self-bypass mark": { "zh-Hans": "自身绕过 mark", "zh-Hant": "自身繞過 mark", "fa": "نشان خوددورزن", "ru": "Метка самообхода" },
   "UDP cleanup": { "zh-Hans": "UDP 清理", "zh-Hant": "UDP 清理", "fa": "پاک‌سازی UDP", "ru": "Очистка UDP" },
   "Userspace cleanup": { "zh-Hans": "用户态清理", "zh-Hant": "使用者態清理", "fa": "پاک‌سازی فضای کاربر", "ru": "Очистка в userspace" },
   "Socket storage": { "zh-Hans": "Socket storage", "zh-Hant": "Socket storage", "fa": "ذخیره‌سازی سوکت", "ru": "Хранилище сокетов" },
