@@ -369,6 +369,13 @@ function InboundSection(props: {
                 value={inbound.localSelfBypassCleanupMode || "-"}
                 mono
               />
+              {inbound.localSelfBypassFallbackReason && (
+                <DataLine
+                  label={t("Self-bypass fallback")}
+                  value={inbound.localSelfBypassFallbackReason}
+                  mono
+                />
+              )}
             </>
           )}
           {inbound.localCgroupAttachMode !== "" && (
