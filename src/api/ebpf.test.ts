@@ -13,6 +13,7 @@ import {
   ebpfInboundHealth,
   ebpfTCDegradation,
   ebpfDiagnosticsSchemaVersion,
+  SUPPORTED_EBPF_SCHEMA_VERSION,
   ebpfStateTone,
   occupancyPercent,
   positiveCounterDelta,
@@ -177,6 +178,36 @@ describe("eBPF diagnostics helpers", () => {
     expect(ebpfDiagnosticsSchemaVersion(current)).toBe(14);
 
     expect(ebpfDiagnosticsSchemaVersion(create(EBPFDiagnosticsResponseSchema))).toBe(0);
+    expect(SUPPORTED_EBPF_SCHEMA_VERSION).toBe(25);
+  });
+
+  it("preserves independent self-bypass lifecycle diagnostics", () => {
+    const diagnostics = create(EBPFDiagnosticsResponseSchema, {
+      inbounds: [create(EBPFInboundDiagnosticsSchema, {
+        localSelfBypassDecision: "direct_tgid",
+        localSelfBypassProducer: "none",
+        localSelfBypassVisibility: "direct_tgid",
+        localSelfBypassCleanup: "none",
+        localSelfBypassReclaim: "none",
+        localSelfBypassAttachment: "none",
+        localSelfBypassReclaimAttempts: 3n,
+        localSelfBypassReclaimedSockets: 2n,
+        localSelfBypassReclaimFailures: 1n,
+        localSelfBypassReclaimLastAt: 1_700_000_000_000n,
+      })],
+    });
+    expect(JSON.parse(ebpfDiagnosticsJson(diagnostics)).inbounds[0]).toMatchObject({
+      localSelfBypassDecision: "direct_tgid",
+      localSelfBypassProducer: "none",
+      localSelfBypassVisibility: "direct_tgid",
+      localSelfBypassCleanup: "none",
+      localSelfBypassReclaim: "none",
+      localSelfBypassAttachment: "none",
+      localSelfBypassReclaimAttempts: "3",
+      localSelfBypassReclaimedSockets: "2",
+      localSelfBypassReclaimFailures: "1",
+      localSelfBypassReclaimLastAt: "1700000000000",
+    });
   });
 
   it("exports bigint counters using protobuf JSON without precision loss", () => {

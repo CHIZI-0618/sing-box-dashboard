@@ -277,6 +277,10 @@ function InboundSection(props: {
   const { t, language } = useI18n();
   const inbound = props.inbound;
   const showNotice = inbound.state !== "normal" || inbound.lastError !== "";
+  const showSelfBypassReclaimActivity =
+    inbound.localSelfBypassReclaimAttempts > 0n ||
+    inbound.localSelfBypassReclaimedSockets > 0n ||
+    inbound.localSelfBypassReclaimFailures > 0n;
   return (
     <div>
       <div className="list-section-title">{inbound.tag || "eBPF"}</div>
@@ -357,41 +361,36 @@ function InboundSection(props: {
             label={t("FakeIP ICMP reply")}
             value={inbound.fakeIPICMPReply ? t("Enabled") : t("Disabled")}
           />
-          {inbound.localSelfBypassMode !== "" && (
+          {inbound.localSelfBypassDecision !== "" && (
             <>
               <DataLine
-                label={t("Self-bypass")}
-                value={inbound.localSelfBypassMode}
+                label={t("Self-bypass decision")}
+                value={inbound.localSelfBypassDecision}
+                mono
+              />
+              <DataLine
+                label={t("Self-bypass producer")}
+                value={inbound.localSelfBypassProducer || "-"}
+                mono
+              />
+              <DataLine
+                label={t("Self-bypass visibility")}
+                value={inbound.localSelfBypassVisibility || "-"}
                 mono
               />
               <DataLine
                 label={t("Self-bypass cleanup")}
-                value={inbound.localSelfBypassCleanupMode || "-"}
-                mono
-              />
-              <DataLine
-                label={t("Self-bypass owner")}
-                value={inbound.localSelfBypassOwner || "-"}
-                mono
-              />
-              <DataLine
-                label={t("Self-bypass metadata")}
-                value={inbound.localSelfBypassMetadata || "-"}
-                mono
-              />
-              <DataLine
-                label={t("Self-bypass cleanup backend")}
                 value={inbound.localSelfBypassCleanup || "-"}
+                mono
+              />
+              <DataLine
+                label={t("Self-bypass reclaim")}
+                value={inbound.localSelfBypassReclaim || "-"}
                 mono
               />
               <DataLine
                 label={t("Self-bypass attachment")}
                 value={inbound.localSelfBypassAttachment || "-"}
-                mono
-              />
-              <DataLine
-                label={t("Self-bypass fallback cleanup")}
-                value={inbound.localSelfBypassReclaim || "-"}
                 mono
               />
               {inbound.localSelfBypassFallbackReason && (
@@ -400,6 +399,23 @@ function InboundSection(props: {
                   value={inbound.localSelfBypassFallbackReason}
                   mono
                 />
+              )}
+              {showSelfBypassReclaimActivity && (
+                <>
+                  <DataLine
+                    label={t("Self-bypass reclaim activity")}
+                    value={t("attempts {attempts} · reclaimed {reclaimed} · failures {failures}", {
+                      attempts: formatCount(inbound.localSelfBypassReclaimAttempts, language),
+                      reclaimed: formatCount(inbound.localSelfBypassReclaimedSockets, language),
+                      failures: formatCount(inbound.localSelfBypassReclaimFailures, language),
+                    })}
+                    mono
+                  />
+                  <OptionalTime
+                    label={t("Last self-bypass reclaim")}
+                    value={inbound.localSelfBypassReclaimLastAt}
+                  />
+                </>
               )}
             </>
           )}
