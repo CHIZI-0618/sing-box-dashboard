@@ -369,6 +369,31 @@ function InboundSection(props: {
                 value={inbound.localSelfBypassCleanupMode || "-"}
                 mono
               />
+              <DataLine
+                label={t("Self-bypass owner")}
+                value={inbound.localSelfBypassOwner || "-"}
+                mono
+              />
+              <DataLine
+                label={t("Self-bypass metadata")}
+                value={inbound.localSelfBypassMetadata || "-"}
+                mono
+              />
+              <DataLine
+                label={t("Self-bypass cleanup backend")}
+                value={inbound.localSelfBypassCleanup || "-"}
+                mono
+              />
+              <DataLine
+                label={t("Self-bypass attachment")}
+                value={inbound.localSelfBypassAttachment || "-"}
+                mono
+              />
+              <DataLine
+                label={t("Self-bypass fallback cleanup")}
+                value={inbound.localSelfBypassReclaim || "-"}
+                mono
+              />
               {inbound.localSelfBypassFallbackReason && (
                 <DataLine
                   label={t("Self-bypass fallback")}
