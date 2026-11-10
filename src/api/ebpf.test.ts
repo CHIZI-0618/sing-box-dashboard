@@ -178,7 +178,7 @@ describe("eBPF diagnostics helpers", () => {
     expect(ebpfDiagnosticsSchemaVersion(current)).toBe(14);
 
     expect(ebpfDiagnosticsSchemaVersion(create(EBPFDiagnosticsResponseSchema))).toBe(0);
-    expect(SUPPORTED_EBPF_SCHEMA_VERSION).toBe(25);
+    expect(SUPPORTED_EBPF_SCHEMA_VERSION).toBe(26);
   });
 
   it("preserves independent self-bypass lifecycle diagnostics", () => {
@@ -194,6 +194,8 @@ describe("eBPF diagnostics helpers", () => {
         localSelfBypassReclaimedSockets: 2n,
         localSelfBypassReclaimFailures: 1n,
         localSelfBypassReclaimLastAt: 1_700_000_000_000n,
+        localSelfBypassStorageFailures: 4n,
+        localSelfBypassCookieFallbacks: 5n,
       })],
     });
     expect(JSON.parse(ebpfDiagnosticsJson(diagnostics)).inbounds[0]).toMatchObject({
@@ -207,6 +209,8 @@ describe("eBPF diagnostics helpers", () => {
       localSelfBypassReclaimedSockets: "2",
       localSelfBypassReclaimFailures: "1",
       localSelfBypassReclaimLastAt: "1700000000000",
+      localSelfBypassStorageFailures: "4",
+      localSelfBypassCookieFallbacks: "5",
     });
   });
 

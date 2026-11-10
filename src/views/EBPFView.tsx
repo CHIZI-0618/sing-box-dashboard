@@ -281,6 +281,9 @@ function InboundSection(props: {
     inbound.localSelfBypassReclaimAttempts > 0n ||
     inbound.localSelfBypassReclaimedSockets > 0n ||
     inbound.localSelfBypassReclaimFailures > 0n;
+  const showSelfBypassStorageFallbacks =
+    inbound.localSelfBypassStorageFailures > 0n ||
+    inbound.localSelfBypassCookieFallbacks > 0n;
   return (
     <div>
       <div className="list-section-title">{inbound.tag || "eBPF"}</div>
@@ -416,6 +419,16 @@ function InboundSection(props: {
                     value={inbound.localSelfBypassReclaimLastAt}
                   />
                 </>
+              )}
+              {showSelfBypassStorageFallbacks && (
+                <DataLine
+                  label={t("Self-bypass storage fallback")}
+                  value={t("write failures {failures} · cookie fallbacks {fallbacks}", {
+                    failures: formatCount(inbound.localSelfBypassStorageFailures, language),
+                    fallbacks: formatCount(inbound.localSelfBypassCookieFallbacks, language),
+                  })}
+                  mono
+                />
               )}
             </>
           )}

@@ -278,6 +278,8 @@ export const TRANSLATIONS = {
   "Self-bypass fallback": { "zh-Hans": "自身绕过回退原因", "zh-Hant": "自身繞過回退原因", "fa": "دلیل بازگشت خوددورزن", "ru": "Причина отката самообхода" },
   "Self-bypass reclaim activity": { "zh-Hans": "自身绕过回收活动", "zh-Hant": "自身繞過回收活動", "fa": "فعالیت بازیابی دور زدن خودی", "ru": "Активность освобождения самообхода" },
   "Last self-bypass reclaim": { "zh-Hans": "最近自身绕过回收", "zh-Hant": "最近自身繞過回收", "fa": "آخرین بازیابی دور زدن خودی", "ru": "Последнее освобождение самообхода" },
+  "Self-bypass storage fallback": { "zh-Hans": "自身绕过存储回退", "zh-Hant": "自身繞過儲存回退", "fa": "بازگشت ذخیره‌سازی دور زدن خودی", "ru": "Резервный путь хранилища самообхода" },
+  "write failures {failures} · cookie fallbacks {fallbacks}": { "zh-Hans": "写入失败 {failures} · cookie 回退 {fallbacks}", "zh-Hant": "寫入失敗 {failures} · cookie 回退 {fallbacks}", "fa": "خطاهای نوشتن {failures} · بازگشت‌های cookie {fallbacks}", "ru": "ошибки записи {failures} · откаты на cookie {fallbacks}" },
   "attempts {attempts} · reclaimed {reclaimed} · failures {failures}": { "zh-Hans": "尝试 {attempts} · 回收 {reclaimed} · 失败 {failures}", "zh-Hant": "嘗試 {attempts} · 回收 {reclaimed} · 失敗 {failures}", "fa": "تلاش {attempts} · بازیابی {reclaimed} · خطا {failures}", "ru": "попыток {attempts} · освобождено {reclaimed} · ошибок {failures}" },
   "UDP cleanup": { "zh-Hans": "UDP 清理", "zh-Hant": "UDP 清理", "fa": "پاک‌سازی UDP", "ru": "Очистка UDP" },
   "Userspace cleanup": { "zh-Hans": "用户态清理", "zh-Hant": "使用者態清理", "fa": "پاک‌سازی فضای کاربر", "ru": "Очистка в userspace" },
